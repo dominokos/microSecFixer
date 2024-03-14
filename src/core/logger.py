@@ -11,8 +11,8 @@ LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
 LOG_PATH = "./output/logs/"
 os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
 
-#filename = "./output/logs/test.log"
-file = LOG_PATH + date.today().strftime("%b-%d-%Y") + "--" + datetime.now().strftime("%H-%M-%S") + ".log"
+file = "./output/logs/test.log"
+#file = LOG_PATH + date.today().strftime("%b-%d-%Y") + "--" + datetime.now().strftime("%H-%M-%S") + ".log"
 logger = logging.getLogger("tool")
 logging.basicConfig(filename = file, level = numeric_level, format = LOG_FORMAT)
 
@@ -29,7 +29,10 @@ logging.getLogger("Github").setLevel(logging.ERROR)
 
 
 def write_log_message(message: str, level: str) -> None:
-    """Writes passed message as passed level to log file"""
+    """
+    Writes passed message as passed level to log file
+    """
+    
     level = str(level)
     message = str(message)
     eval("logger." + level + "(message)")
