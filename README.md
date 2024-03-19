@@ -2,21 +2,7 @@
 
 This is microSecFixer, a tool used to automatically fix security rule violations on the architectural model of a Microservice application.
 
-microSecFixer builds on top of the groundwork laid by Simon Schneider. It 
-
-The tool and underlying approach are presented in a publication in the Journal of Systems and Software (JSS). You can find the paper on arXiv or the publisher's website. If you use the tool in a scientific context, please cite as:
-
-@article{Code2DFD23,
-  title = {Automatic Extraction of Security-Rich Dataflow Diagrams for Microservice Applications written in Java},
-  journal = {Journal of Systems and Software},
-  volume = {202},
-  pages = {111722},
-  year = {2023},
-  issn = {0164-1212},
-  doi = {https://doi.org/10.1016/j.jss.2023.111722},
-  author = {Simon Schneider and Riccardo Scandariato},
-  keywords = {Dataflow diagram, Automatic extraction, Security, Microservices, Architecture reconstruction, Feature detection}
-}
+microSecFixer builds on top of the groundwork laid by Simon Schneider. It evaluates using microCertiSec, whether a given Dataflow Diagram - representing an application with a Microservice architecture - violates any of a set of 25 security rules. The security rules are based on best practice recommendations by OWASP, NIST and CSA. At the core, it evaluates what parts of the Dataflow model are faulty and automatically corrects said flaws.
 
 ##### 1. Installation and configuration
 Before running the tool, [Python](https://www.python.org/downloads/) version 3.x needs to be installed.
