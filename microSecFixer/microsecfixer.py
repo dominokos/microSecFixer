@@ -8,7 +8,7 @@ from datetime import datetime
 from microSecFixer.core.evaluation import find_all_violations
 
 import microSecFixer.core.logger as logger
-import tmp.tmp as temp
+import microSecFixer.tmp.tmp as temp
 
 
 def main():

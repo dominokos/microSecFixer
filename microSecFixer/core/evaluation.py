@@ -16,16 +16,16 @@ def find_all_violations(dfd_path: str):
     if not os.path.exists(result_directory):
         os.makedirs(result_directory)
 
-    for i in range(1, 25):
+    for i in range(1, 26):
         result = evaluate_dfd(model_path, traceability_path, rule_map[i])
         # Skip if the verdict is positive (rule is adhered to)
-        verdict = None
-        for rule in result.property_check_evidence_json.values():
-            if rule.get("verdict"):
-                verdict = rule["verdict"]
-                break
-        if verdict:
-            continue
+        # verdict = None
+        # for rule in result.property_check_evidence_json.values():
+        #     if rule.get("verdict"):
+        #         verdict = rule["verdict"]
+        #         break
+        # if verdict:
+        #     continue
         with open(f"{result_directory}{rule_map[i]}{repo_name_json}", "w") as output_file:
             json.dump(result.property_check_evidence_json, output_file)
 

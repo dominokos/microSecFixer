@@ -21,4 +21,4 @@ The tool creates multiple outputs:
 An internet connection is needed for this, otherwise no PNG will be created.
 - A machine-readable version of the DFD is created in JSON format in `output/json/`
 - Logs are saved in `output/logs/`
-- The results of the security analysis are saved in `output/result`
+- The results of the security analysis are saved in `output/results/`

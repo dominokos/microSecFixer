@@ -1,0 +1,102 @@
+R1:
+1 gateway = new Process("API-Gateway")
+2 for each process from processes.with_stereotypes(entrypoint) do:
+3 	process.remove_stereotypes(entrypoint)
+4 end loop
+2 gateway.add_stereotypes(infrastructural, gateway, entrypoint)
+3 for each process from processes.with_stereotypes(internal) do:
+4	connection=Connection(gateway, service)
+5	connection.add_stereotypes(restful_http)
+6 	connections.add(connection)
+7 end loop
+8 processes.add(gateway)
+??? Warum ist in der Variante das Gateway kein Entrypoint? Warum sind in anderen Varianten mehrere Entypoints? Wofür steht die Entrypoint Annotation?
+ Evtl zwei Entrypoint artige add_stereotypes
+Wie erkennt man, ob ein Service durch Usr ansprechbar sein soll? Ohne Definition durch User nicht möglich, also evtl. in Zukunft könnte man die Korrektur interaktiv gestalten.
+
+R2:
+1 for each connection from connections do:
+2 	connection.add_stereotypes(authenticated_request)
+3 end loop
+
+R3:
+1 authorization_server = new Process("Authorization-Server")
+2 authorization_server.add_stereotypes(infrastructural, authorization_server)
+3 authentication_server = new Process("Authentication-Server")
+4 authentication_server.add_stereotypes(infrastructural, authentication_server)
+5 for each process from processes do:
+6 	author_con = new Connection(authorization_server, process)
+7 	author_con.add_stereotypes(restful_http)
+8 	authen_con = new Connection(authentication_server, process)
+9 	authen_con.add_stereotypes(restful_http)
+10 	connections.add(authen_con, author_con)
+11 end loop
+12 processes.add(authorization_server, authentication_server)
+
+R4:
+1 for each gateway from processes.with_stereotypes(gateway) do:
+2 	gateway.add_stereotypes(transform_identity_representation)
+3 end loop
+
+R5:
+1 for each process from processes.without_stereotypes(authorization_server, authentication_server) do:
+2 	process.add_stereotypes(token_validation)
+3 end loop
+
+R6:
+1 for each authen_server from processes.with_stereotypes(authentication_server) do:
+2 	authen_server.add_stereotypes(login_attempts_regulation)
+3 end loop
+
+R7, R8:
+1 for each connection from connections do:
+2 	connection.add_stereotypes(encrypted_connection)
+3 end loop
+
+R9:
+1 logging_server = new Process("Logging Server")
+2 logging_server.add_stereotypes(infrastructural, logging_server)
+3 ???   Wie hast du entschieden, dass der Logging Server mit dem foodtray_service verbunden werden muss?
+
+R10, R11:
+1 for each process from processes.without_stereotypes(logging_server) do:
+2 	process.add_stereotypes(local_logging, log_sanitization)
+3 end loop
+
+R12:
+1 message_broker = new Process("Message Broker")
+2 message_broker.add_stereotypes(infrastructural, message_broker)
+3 for each process from processes.without_stereotypes(logging_server) do:
+4 	??
+
+R13, R14:
+1 for each gateway from processes.with_stereotypes(gateway) do:
+2 	gateway.add_stereotypes(circuit_breaker, load_balancer)
+3 end loop
+
+R16:
+1 service_registry = new Process("Service Registry")
+2 service_registry.add_stereotypes(infrastructural, service_discovery)
+3 for each process from processes.without_stereotypes(database) do: (why not databse???)
+4 	connection = new Connection(process, service_discovery)
+5 	connection.add_stereotypes(restful_http)
+6 	connections.add(connection)
+7 end loop
+8 processes.add(service_registry)
+
+R17:
+1 for each discovery_service from processes.with_stereotypes(service_dsicovery) do:
+2 	discovery_service.add_stereotypes(validate_registration)
+3 end loop
+
+R18:
+1 secret_manager = new Process("Secret Manager")
+2 secret_manager.add_stereotypes(infrastructural, secret_manager)
+3 for each process from processes do:
+4 	connection = new Connection(process, secret_manager)
+5 	connection.add_stereotypes(restful_http)
+6 	connections.add(connection)
+7 end loop
+8 processes.add(secret_manager)
+
+
