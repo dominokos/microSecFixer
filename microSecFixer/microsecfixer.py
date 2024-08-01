@@ -3,12 +3,14 @@
 # Author: Dominik Jacob, 2024
 # Contact: dominik.jacob@tuhh.de
 
+import os
 from configparser import ConfigParser
 from datetime import datetime
-from microSecFixer.core.evaluation import find_all_violations
 
+from microSecFixer.core.evaluation import find_all_violations
 import microSecFixer.core.logger as logger
 import microSecFixer.tmp.tmp as temp
+import subprocess
 
 
 def main():
@@ -25,6 +27,9 @@ def main():
 
     # calling microCertiSec to evaluate the security of the model and saving the results under output/results
     find_all_violations(dfd_path)
+    model_name = get_model_name(dfd_path)
+    full_path = get_full_path(dfd_path)
+    gen_plantuml(full_path, model_name)
 
 
     now = datetime.now()
@@ -33,6 +38,20 @@ def main():
     print("\nStarted", start_time)
     print("Finished", end_time)
 
+def get_model_name(dfd_path: str) -> str:
+    no_file_ending = dfd_path.split(".")[0]
+    model_name = no_file_ending.partition("models/")[2]
+    return model_name
+
+def get_full_path(dfd_path):
+    current_wd = os.getcwd()
+    return current_wd + dfd_path
+
+def gen_plantuml(dfd_path: str, model_name: str):
+    plantuml_directory = "./output/plantuml/"
+    os.makedirs(plantuml_directory, exist_ok=True)
+    # os.chmod(plantuml_directory, 0o777)
+    subprocess.run(["python", "C:\\projects\\simonproj\\microSecEnD\\convert_model.py", "-op", "output/plantuml/"+model_name, dfd_path, "txt"])
 
 def insertConfigIntoTemp(config: ConfigParser):
     logger.write_log_message("Copying config file to tmp file", "debug")

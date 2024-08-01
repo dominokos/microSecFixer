@@ -12,19 +12,19 @@ Service creation
     At least one
     | 20 | There should be a monitoring dashboard. |
     | 17 | There should be a message broker. |
-Flow creation
-| 4 | All entry points should perform authorization. |
-| 5 | All entry points should perform authentication. |
-| 15 | All services should perform logging. |
-| 18 | All services that perform logging should be connected to a message broker. |
-| 21 | All services should be connected to a monitoring dashboard. |
 Service stereotypes
 | 2 | All entry points should have a circuit breaker. | 
 | 3 | All entry points should have a load balancer. |
+| 4 | All entry points should perform authorization. |
+| 5 | All entry points should perform authentication. |
+| 15 | All services should perform logging. |
 | 22 | All services should sanitize logs. |
 | 24 | All service registries should have validation checks for incoming requests. |
     At least one
     | 12 | There should be a service limiting the number of login attempts. |
+Flow creation
+| 18 | All services that perform logging should be connected to a message broker. |
+| 21 | All services should be connected to a monitoring dashboard. |
 Flow stereotypes
 | 6 | All connections between services should be authorized. |
 | 7 | All connections between services should be authenticated. |
