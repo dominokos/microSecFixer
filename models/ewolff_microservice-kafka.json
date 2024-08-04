@@ -95,7 +95,7 @@
                 "message_producer_kafka"
             ],
             "tagged_values": {
-                "'Producer Topic'": "\"order\""
+                "Producer Topic": "order"
             }
         },
         {
@@ -106,7 +106,7 @@
                 "message_consumer_kafka"
             ],
             "tagged_values": {
-                "'Consumer Topic'": "\"order\""
+                "Consumer Topic": "order"
             }
         },
         {
@@ -117,7 +117,7 @@
                 "message_consumer_kafka"
             ],
             "tagged_values": {
-                "'Consumer Topic'": "\"order\""
+                "Consumer Topic": "order"
             }
         },
         {
@@ -160,8 +160,8 @@
                 "plaintext_credentials_link"
             ],
             "tagged_values": {
-                "'Username'": "\"dbuser\"",
-                " 'Password'": "\"dbpass\""
+                "Username": "dbuser",
+                " Password": "dbpass"
             }
         },
         {
@@ -172,8 +172,8 @@
                 "plaintext_credentials_link"
             ],
             "tagged_values": {
-                "'Username'": "\"dbuser\"",
-                " 'Password'": "\"dbpass\""
+                "Username": "dbuser",
+                "Password": "dbpass"
             }
         },
         {
@@ -184,8 +184,8 @@
                 "plaintext_credentials_link"
             ],
             "tagged_values": {
-                "'Username'": "\"dbuser\"",
-                " 'Password'": "\"dbpass\""
+                "Username": "dbuser",
+                "Password": "dbpass"
             }
         }
     ],

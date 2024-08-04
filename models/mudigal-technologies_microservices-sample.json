@@ -231,8 +231,8 @@
                 "restful_http"
             ],
             "tagged_values": {
-                "'Producer Exchange'": "\"com.mudigal.microservices-sample.services-exchange\"",
-                " 'Routing Key'": "\"com.mudigal.microservices-sample.service-*\""
+                "Producer Exchange": "com.mudigal.microservices-sample.services-exchange",
+                "Routing Key": "com.mudigal.microservices-sample.service-*"
             }
         },
         {
@@ -243,7 +243,7 @@
                 "restful_http"
             ],
             "tagged_values": {
-                "'Queue'": "\"com.mudigal.microservices-sample.service-one\""
+                "Queue": "com.mudigal.microservices-sample.service-one"
             }
         },
         {
@@ -271,8 +271,8 @@
                 "plaintext_credentials_link"
             ],
             "tagged_values": {
-                "'Producer Exchange'": "\"com.mudigal.microservices-sample.services-exchange\"",
-                " 'Routing Key'": "\"com.mudigal.microservices-sample.service-*\""
+                "Producer Exchange": "com.mudigal.microservices-sample.services-exchange",
+                "Routing Key": "com.mudigal.microservices-sample.service-*"
             }
         },
         {
@@ -283,7 +283,7 @@
                 "restful_http"
             ],
             "tagged_values": {
-                "'Queue'": "\"com.mudigal.microservices-sample.service-two\""
+                "Queue": "com.mudigal.microservices-sample.service-two"
             }
         },
         {
@@ -302,8 +302,8 @@
                 "plaintext_credentials_link"
             ],
             "tagged_values": {
-                "'Username'": "\"service-two\"",
-                " 'Password'": "\"service-two\""
+                "Username": "service-two",
+                "Password": "service-two"
             }
         },
         {

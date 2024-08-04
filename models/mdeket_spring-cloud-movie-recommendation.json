@@ -215,8 +215,8 @@
                 "plaintext_credentials_link"
             ],
             "tagged_values": {
-                "'Username'": "\"root\"",
-                " 'Password'": "\"root\""
+                "Username": "root",
+                "Password": "root"
             }
         },
         {
@@ -243,8 +243,8 @@
                 "plaintext_credentials_link"
             ],
             "tagged_values": {
-                "'Username'": "\"neo4j\"",
-                " 'Password'": "\"root\""
+                "Username": "neo4j",
+                "Password": "root"
             }
         },
         {
@@ -281,8 +281,8 @@
                 "feign_connection"
             ],
             "tagged_values": {
-                "'Circuit Breaker'": "\"Hystrix\"",
-                " 'Load Balancer'": "\"Ribbon\""
+                "Circuit Breaker": "Hystrix",
+                "Load Balancer": "Ribbon"
             }
         },
         {
@@ -295,8 +295,8 @@
                 "feign_connection"
             ],
             "tagged_values": {
-                "'Circuit Breaker'": "\"Hystrix\"",
-                " 'Load Balancer'": "\"Ribbon\""
+                "Circuit Breaker": "Hystrix",
+                "Load Balancer": "Ribbon"
             }
         },
         {
@@ -309,8 +309,8 @@
                 "feign_connection"
             ],
             "tagged_values": {
-                "'Load Balancer'": "\"Ribbon\"",
-                " 'Circuit Breaker'": "\"Hystrix\""
+                "Load Balancer": "Ribbon",
+                "Circuit Breaker": "Hystrix"
             }
         }
     ]

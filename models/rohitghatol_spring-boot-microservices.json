@@ -182,8 +182,8 @@
                 "plaintext_credentials_link"
             ],
             "tagged_values": {
-                "'Username'": "\"root\"",
-                " 'Password'": "\"password\""
+                "Username": "root",
+                "Password": "password"
             }
         },
         {
@@ -372,8 +372,8 @@
                 "plaintext_credentials_link"
             ],
             "tagged_values": {
-                "'Username'": "\"root\"",
-                " 'Password'": "\"password\""
+                "Username": "root",
+                "Password": "password"
             }
         },
         {

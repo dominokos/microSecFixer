@@ -100,8 +100,8 @@
                 "plaintext_credentials_link"
             ],
             "tagged_values": {
-                "'Password'": "\"default\"",
-                " 'Username'": "\"default\""
+                "Password": "default",
+                "Username": "default"
             }
         },
         {
@@ -131,8 +131,8 @@
                 "plaintext_credentials_link"
             ],
             "tagged_values": {
-                "\"Username\"": "\"oauth2\"",
-                " \"Password\"": "\"oauth2\""
+                "Username": "oauth2",
+                "Password": "oauth2"
             }
         },
         {
@@ -189,7 +189,7 @@
                 "load_balanced_link"
             ],
             "tagged_values": {
-                "'Load Balancer'": "\"Ribbon\""
+                "Load Balancer": "Ribbon"
             }
         },
         {

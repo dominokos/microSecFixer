@@ -234,8 +234,8 @@
                 "load_balanced_link"
             ],
             "tagged_values": {
-                "'Circuit Breaker'": "\"Hystrix\"",
-                " 'Load Balancer'": "\"Ribbon\""
+                "Circuit Breaker": "Hystrix",
+                "Load Balancer": "Ribbon"
             }
         },
         {
@@ -248,8 +248,8 @@
                 "load_balanced_link"
             ],
             "tagged_values": {
-                "'Circuit Breaker'": "\"Hystrix\"",
-                " 'Load Balancer'": "\"Ribbon\""
+                "Circuit Breaker": "Hystrix",
+                "Load Balancer": "Ribbon"
             }
         },
         {

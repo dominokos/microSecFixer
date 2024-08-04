@@ -226,7 +226,7 @@
                 "message_consumer_kafka"
             ],
             "tagged_values": {
-                "'Consumer Topic'": "\"todo-mail\""
+                "Consumer Topic": "todo-mail"
             }
         },
         {
@@ -261,7 +261,7 @@
                 "message_producer_kafka"
             ],
             "tagged_values": {
-                "'Producer Topic'": "\"todo-mail\""
+                "Producer Topic": "todo-mail"
             }
         },
         {
@@ -297,7 +297,7 @@
                 "feign_connection"
             ],
             "tagged_values": {
-                "'Load Balancer'": "\"Ribbon\""
+                "Load Balancer": "Ribbon"
             }
         },
         {
@@ -318,7 +318,7 @@
                 "feign_connection"
             ],
             "tagged_values": {
-                "'Load Balancer'": "\"Ribbon\""
+                "Load Balancer": "Ribbon"
             }
         },
         {
