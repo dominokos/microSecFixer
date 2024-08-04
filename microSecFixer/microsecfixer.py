@@ -10,7 +10,7 @@ from datetime import datetime
 from microSecFixer.core.evaluation import find_all_violations
 import microSecFixer.core.logger as logger
 import microSecFixer.tmp.tmp as temp
-import subprocess
+import microSecFixer.core.convert_model as convert_model
 
 
 def main():
@@ -50,8 +50,7 @@ def get_full_path(dfd_path):
 def gen_plantuml(dfd_path: str, model_name: str):
     plantuml_directory = "./output/plantuml/"
     os.makedirs(plantuml_directory, exist_ok=True)
-    # os.chmod(plantuml_directory, 0o777)
-    subprocess.run(["python", "C:\\projects\\simonproj\\microSecEnD\\convert_model.py", "-op", "output/plantuml/"+model_name, dfd_path, "txt"])
+    convert_model.main(["-op", "output/plantuml/"+model_name, dfd_path, "txt"])
 
 def insertConfigIntoTemp(config: ConfigParser):
     logger.write_log_message("Copying config file to tmp file", "debug")
