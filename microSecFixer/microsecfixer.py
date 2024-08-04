@@ -47,10 +47,10 @@ def get_full_path(dfd_path):
     current_wd = os.getcwd()
     return current_wd + dfd_path
 
-def gen_plantuml(dfd_path: str, model_name: str):
+def gen_plantuml(full_path: str, model_name: str):
     plantuml_directory = "./output/plantuml/"
     os.makedirs(plantuml_directory, exist_ok=True)
-    convert_model.main(["-op", "output/plantuml/"+model_name, dfd_path, "txt"])
+    convert_model.main(["-op", "output/plantuml/"+model_name+".txt", full_path, "txt"])
 
 def insertConfigIntoTemp(config: ConfigParser):
     logger.write_log_message("Copying config file to tmp file", "debug")

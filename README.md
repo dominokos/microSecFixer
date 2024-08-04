@@ -17,8 +17,8 @@ Once the analysis is finished, the results can be found in the `output/` folder.
 
 ##### 3. Output
 The tool creates multiple outputs:
-- The extracted DFD is saved as a .png rendered with [PlantUML](https://plantuml.com) in `output/png/`.
-An internet connection is needed for this, otherwise no PNG will be created.
+- The DFD is converted into [PlantUML](https://plantuml.com) and stored in `output/plantuml/`.
+PlantUML can be converted into .png or .svg, as needed, using `java -jar plantuml.jar -tsvg "Path/To/file.txt"`.
 - A machine-readable version of the DFD is created in JSON format in `output/json/`
 - Logs are saved in `output/logs/`
 - The results of the security analysis are saved in `output/results/`
