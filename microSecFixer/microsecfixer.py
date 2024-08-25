@@ -13,31 +13,6 @@ import microSecFixer.tmp.tmp as temp
 import microSecFixer.core.convert_model as convert_model
 
 
-def main():
-    now = datetime.now()
-    start_time = now.strftime("%H:%M:%S")
-
-    logger.write_log_message("*** New execution ***", "info")
-    
-    ini_config = ConfigParser()
-    ini_config.read('config/config.ini')
-    insertConfigIntoTemp(ini_config)
-
-    dfd_path = temp.tmp_config.get("Repository", "dfd_path")
-
-    # calling microCertiSec to evaluate the security of the model and saving the results under output/results
-    find_all_violations(dfd_path)
-    model_name = get_model_name(dfd_path)
-    full_path = get_full_path(dfd_path)
-    gen_plantuml(full_path, model_name)
-
-
-    now = datetime.now()
-    end_time = now.strftime("%H:%M:%S")
-
-    print("\nStarted", start_time)
-    print("Finished", end_time)
-
 def get_model_name(dfd_path: str) -> str:
     no_file_ending = dfd_path.split(".")[0]
     model_name = no_file_ending.partition("models/")[2]
@@ -62,6 +37,30 @@ def insertConfigIntoTemp(config: ConfigParser):
             temp.tmp_config.set(section, entry, config[section][entry])
     
 
+def main():
+    now = datetime.now()
+    start_time = now.strftime("%H:%M:%S")
+
+    logger.write_log_message("*** New execution ***", "info")
+    
+    ini_config = ConfigParser()
+    ini_config.read('config/config.ini')
+    insertConfigIntoTemp(ini_config)
+
+    dfd_path = temp.tmp_config.get("Repository", "dfd_path")
+
+    # calling microCertiSec to evaluate the security of the model and saving the results under output/results
+    find_all_violations(dfd_path)
+    model_name = get_model_name(dfd_path)
+    full_path = get_full_path(dfd_path)
+    gen_plantuml(full_path, model_name)
+
+
+    now = datetime.now()
+    end_time = now.strftime("%H:%M:%S")
+
+    print("\nStarted", start_time)
+    print("Finished", end_time)
 
 if __name__ == '__main__':
     main()
