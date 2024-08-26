@@ -11,14 +11,14 @@ A number of repositories is already given in that file, for all of which a manua
 The corresponding path only needs to be un-commented for analysis (all others have to be commented out with a ";")
 
 ##### 2. Running the tool
-To start the tool via the terminal, simply enter `python3 microSecFixer.py` in a command line opened in the root directory.
+To start the tool via the terminal, simply enter `python ./microSecFixer/microsecfixer.py` in a command line opened in the root directory.
 The extraction will start and some status messages appear on the screen.
 Once the analysis is finished, the results can be found in the `output/` folder.
 
 ##### 3. Output
 The tool creates multiple outputs:
-- The DFD is converted into [PlantUML](https://plantuml.com) and stored in `output/plantuml/`.
-PlantUML can be converted into .png or .svg, as needed, using `java -jar plantuml.jar -tsvg "Path/To/file.txt"`.
+- The DFD is converted into [PlantUML](https://plantuml.com) and stored in `output/plantuml/` as pure PlantUML text and as an SVG file.
+PlantUML can be converted into .png as needed, using `java -jar plantuml.jar -tpng "Path/To/file.txt"`.
 - A machine-readable version of the DFD is created in JSON format in `output/json/`
 - Logs are saved in `output/logs/`
 - The results of the security analysis are saved in `output/results/`
