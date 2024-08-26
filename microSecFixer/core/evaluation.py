@@ -12,20 +12,26 @@ def find_all_violations(dfd_path: str):
     model_path = "." + dfd_path
     traceability_path = model_path.replace(".json", "_traceability.json")
     rule_map = RuleMap.get_mapping()
-    result_directory = "./output/results/"
+    result_directory = f"./output/results/{repo_name_json}/"
     if not os.path.exists(result_directory):
         os.makedirs(result_directory)
 
     for i in range(1, 26):
         result = evaluate_dfd(model_path, traceability_path, rule_map[i])
         # Skip if the verdict is positive (rule is adhered to)
-        # verdict = None
-        # for rule in result.property_check_evidence_json.values():
-        #     if rule.get("verdict"):
-        #         verdict = rule["verdict"]
-        #         break
-        # if verdict:
-        #     continue
-        with open(f"{result_directory}{rule_map[i]}{repo_name_json}", "w") as output_file:
-            json.dump(result.property_check_evidence_json, output_file)
+        verdict = None
+        for rule in result.property_check_evidence_json.values():
+            if rule.get("verdict"):
+                verdict = rule["verdict"]
+                break
+        if verdict:
+            continue
+        os.makedirs(result_directory, exist_ok=True)
+        if(i // 10 < 1):
+            with open(f"{result_directory}r0{i}{repo_name_json}", "w") as output_file:
+                json.dump(result.property_check_evidence_json, output_file)
+        else:
+            with open(f"{result_directory}r{i}{repo_name_json}", "w") as output_file:
+                json.dump(result.property_check_evidence_json, output_file)
+
 
