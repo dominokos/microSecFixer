@@ -113,7 +113,10 @@ def json_to_plantuml(input_dict: dict) -> str:
     if "services" in input_dict:
         services = input_dict["services"]
         for service in services:
-            output_lines = add_service_plantuml(output_lines, service["name"], service["stereotypes"], service["tagged_values"])
+            if "database" in service["stereotypes"]:
+                output_lines = add_database_plantuml(output_lines, service["name"], service["stereotypes"], service["tagged_values"])
+            else:
+                output_lines = add_service_plantuml(output_lines, service["name"], service["stereotypes"], service["tagged_values"])
 
     if "external_entities" in input_dict:
         external_entities = input_dict["external_entities"]
@@ -249,7 +252,7 @@ def add_service_plantuml(input_string: str, name: str, stereotypes: list, tagged
     """Adds line for service to passed input string
     """
 
-    new_line = "        " + name + " [label = \"{Process: " + name + " | "
+    new_line = "        " + name + " [label = \"{Service: " + name + " | "
     for stereotype in stereotypes:
         new_line += "--" + stereotype.strip() + "--\\n"
     if isinstance(tagged_values, dict):
@@ -273,7 +276,7 @@ def add_database_plantuml(input_string: str, name: str, stereotypes: list, tagge
     """Adds line for database to passed input line.
     """
 
-    new_line = "        " + name + " [label = \"|{Process: " + name + " | "
+    new_line = "        " + name + " [label = \"|{Database: " + name + " | "
     for stereotype in stereotypes:
         new_line += "--" + stereotype.strip() + "--\\n"
     if isinstance(tagged_values, dict):
