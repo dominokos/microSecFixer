@@ -1,3 +1,5 @@
+import microSecFixer.core.fixing as fixer
+
 class RuleMap:
     _mapping = {
         1:  "r10",
@@ -27,6 +29,38 @@ class RuleMap:
         25: "r14"
     }
 
+    _fixes = {
+        "r01":  fixer.r01_authorization_only,
+        "r02":  fixer.r02_authentication_only,
+        "r03":  fixer.r03_logging_system_disconnect,
+        "r04":  fixer.r04_single_entry,
+        "r05":  fixer.r05_single_authorization,
+        "r06":  fixer.r06_single_authentication,
+        "r07":  fixer.r07_single_log_subsystem,
+        "r08":  fixer.r08_single_registry,
+        "r09":  fixer.r09_single_secret_store,
+        "r10": fixer.r10_single_monitoring_dashboard,
+        "r11": fixer.r11_single_message_broker,
+        "r12": fixer.r12_single_login_attempt_limiter,
+        "r13": fixer.r13_entrypoint_authorization,
+        "r14": fixer.r14_entrypoint_authentication,
+        "r15": fixer.r15_entrypoint_circuit_breaker,
+        "r16": fixer.r16_entrypoint_load_balancer,
+        "r17": fixer.r17_all_logging,
+        "r18": fixer.r18_all_sanitize_logs,
+        "r19": fixer.r19_registry_validate,
+        "r20": fixer.r20_logger_to_message_broker,
+        "r21": fixer.r21_all_to_monitoring_dashboard,
+        "r22": fixer.r22_connections_authorized,
+        "r23": fixer.r23_connections_authenticated,
+        "r24": fixer.r24_outer_connections_encrypted,
+        "r25": fixer.r25_inner_connections_encrypted
+    }
+
     @staticmethod
     def get_mapping():
         return RuleMap._mapping
+    
+    @staticmethod
+    def get_fixes():
+        return RuleMap._fixes

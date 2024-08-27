@@ -9,6 +9,7 @@ from datetime import datetime
 
 from microSecFixer.core.evaluation import find_all_violations
 import microSecFixer.core.logger as logger
+from microSecFixer.core.rule_map import RuleMap
 import microSecFixer.tmp.tmp as temp
 import microSecFixer.core.convert_model as convert_model
 
@@ -18,7 +19,7 @@ def get_model_name(dfd_path: str) -> str:
     model_name = no_file_ending.partition("models/")[2]
     return model_name
 
-def get_full_path(dfd_path):
+def get_full_path(dfd_path: str) -> str:
     current_wd = os.getcwd()
     return current_wd + dfd_path
 
@@ -26,6 +27,11 @@ def gen_plantuml(full_path: str, model_name: str):
     plantuml_directory = "./output/plantuml/"
     os.makedirs(plantuml_directory, exist_ok=True)
     convert_model.main(["-op", "output/plantuml/"+model_name+".txt", full_path, "txt"])
+
+def visualize_dfd(dfd_path: str):
+    model_name = get_model_name(dfd_path)
+    full_path = get_full_path(dfd_path)
+    gen_plantuml(full_path, model_name)
 
 def insertConfigIntoTemp(config: ConfigParser):
     logger.write_log_message("Copying config file to tmp file", "debug")
@@ -48,13 +54,15 @@ def main():
     insertConfigIntoTemp(ini_config)
 
     dfd_path = temp.tmp_config.get("Repository", "dfd_path")
+    visualize_dfd(dfd_path)
 
-    # calling microCertiSec to evaluate the security of the model and saving the results under output/results
-    find_all_violations(dfd_path)
-    model_name = get_model_name(dfd_path)
-    full_path = get_full_path(dfd_path)
-    gen_plantuml(full_path, model_name)
-
+    # calling microCertiSec to evaluate the security of the model and saving the results under output/results/{model name}
+    result_dir = find_all_violations(dfd_path)
+    results = os.listdir(result_dir)
+    fixing_map = RuleMap.get_fixes()
+    while(results):
+        rule = results[0][:3]
+        fixing_map[rule](dfd_path)
 
     now = datetime.now()
     end_time = now.strftime("%H:%M:%S")
