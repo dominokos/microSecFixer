@@ -7,31 +7,17 @@ import os
 from configparser import ConfigParser
 from datetime import datetime
 
+from microSecFixer.core import visualizer
 from microSecFixer.core.evaluation import find_all_violations
 import microSecFixer.core.logger as logger
 from microSecFixer.core.rule_map import RuleMap
 import microSecFixer.tmp.tmp as temp
-import microSecFixer.core.convert_model as convert_model
 
 
-def get_model_name(dfd_path: str) -> str:
-    no_file_ending = dfd_path.split(".")[0]
-    model_name = no_file_ending.partition("models/")[2]
-    return model_name
 
-def get_full_path(dfd_path: str) -> str:
-    current_wd = os.getcwd()
-    return current_wd + dfd_path
-
-def gen_plantuml(full_path: str, model_name: str):
-    plantuml_directory = "./output/plantuml/"
-    os.makedirs(plantuml_directory, exist_ok=True)
-    convert_model.main(["-op", "output/plantuml/"+model_name+".txt", full_path, "txt"])
 
 def visualize_dfd(dfd_path: str):
-    model_name = get_model_name(dfd_path)
-    full_path = get_full_path(dfd_path)
-    gen_plantuml(full_path, model_name)
+    visualizer.visualize(dfd_path)
 
 def insertConfigIntoTemp(config: ConfigParser):
     logger.write_log_message("Copying config file to tmp file", "debug")
