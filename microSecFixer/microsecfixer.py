@@ -14,8 +14,6 @@ from microSecFixer.core.rule_map import RuleMap
 import microSecFixer.tmp.tmp as temp
 
 
-
-
 def visualize_dfd(dfd_path: str):
     visualizer.visualize(dfd_path)
 
