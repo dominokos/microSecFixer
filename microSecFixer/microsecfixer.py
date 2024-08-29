@@ -7,7 +7,7 @@ import os
 from configparser import ConfigParser
 from datetime import datetime
 
-from microSecFixer.core import visualizer
+import microSecFixer.core.visualizer as visualizer
 from microSecFixer.core.evaluation import find_all_violations
 import microSecFixer.core.logger as logger
 from microSecFixer.core.rule_map import RuleMap
@@ -45,8 +45,12 @@ def main():
     results = os.listdir(result_dir)
     fixing_map = RuleMap.get_fixes()
     while(results):
+        model_path = f".{dfd_path}"
         rule = results[0][:3]
-        fixing_map[rule](dfd_path)
+        dfd_path = fixing_map[rule](model_path)
+        result_dir = find_all_violations(dfd_path)
+        results = os.listdir(result_dir)
+
 
     now = datetime.now()
     end_time = now.strftime("%H:%M:%S")

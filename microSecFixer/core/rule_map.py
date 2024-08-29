@@ -60,7 +60,7 @@ class RuleMap:
 
     @staticmethod
     def get_rules():
-        return RuleMap._rule
+        return RuleMap._rules
     
     @staticmethod
     def get_fixes():
