@@ -1,7 +1,8 @@
 import microSecFixer.core.fixing as fixer
 
+"""Utility class containing maps useful for execution"""
 class RuleMap:
-    _mapping = {
+    _rules = {
         1:  "r10",
         2:  "r11",
         3:  "r19",
@@ -58,8 +59,8 @@ class RuleMap:
     }
 
     @staticmethod
-    def get_mapping():
-        return RuleMap._mapping
+    def get_rules():
+        return RuleMap._rule
     
     @staticmethod
     def get_fixes():

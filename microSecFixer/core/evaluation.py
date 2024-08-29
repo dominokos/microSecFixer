@@ -15,7 +15,7 @@ def find_all_violations(dfd_path: str) -> str:
     repo_name_json = dfd_path.split("models/")[1] 
     model_path = "." + dfd_path
     traceability_path = model_path.replace(".json", "_traceability.json")
-    rule_map = RuleMap.get_mapping()
+    rule_map = RuleMap.get_rules()
     result_directory = f"./output/results/{repo_name_json}/"
     if not os.path.exists(result_directory):
         os.makedirs(result_directory)

@@ -1,12 +1,11 @@
-"""Renders PlantUML as svg
-"""
-
 import os
 import subprocess
 
 from microSecFixer.core import convert_model
 
 
+"""Renders PlantUML as svg
+"""
 def get_model_name(dfd_path: str) -> str:
     no_file_ending = dfd_path.split(".")[0]
     model_name = no_file_ending.partition("models/")[2]
