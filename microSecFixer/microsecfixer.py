@@ -7,12 +7,16 @@ import os
 from configparser import ConfigParser
 from datetime import datetime
 
+from microCertiSec.core.model import CModel
 import microSecFixer.core.visualizer as visualizer
 from microSecFixer.core.evaluation import find_all_violations
 import microSecFixer.core.logger as logger
 from microSecFixer.core.rule_map import RuleMap
 import microSecFixer.tmp.tmp as temp
+from microCertiSec.microCertiSec import model_api
 
+def get_model(model_path: str) -> CModel:
+    return model_api(model_path, None)
 
 def visualize_dfd(dfd_path: str):
     visualizer.visualize(dfd_path)
@@ -47,11 +51,11 @@ def main():
     while(results):
         model_path = f".{dfd_path}"
         rule = results[0][:3]
-        dfd_path = fixing_map[rule](model_path)
+        dfd_path = fixing_map[rule](get_model(model_path))
         result_dir = find_all_violations(dfd_path)
         results = os.listdir(result_dir)
 
-
+    visualize_dfd(dfd_path)
     now = datetime.now()
     end_time = now.strftime("%H:%M:%S")
 

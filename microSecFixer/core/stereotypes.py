@@ -10,8 +10,8 @@ class AllEntrypoints:
     entrypoints_stereotypes = ["entrypoint",
                                "authorization",
                                "authentication",
-                               "load_balancer",
                                "circuit_breaker",
+                               "load_balancer",
                                "login_attempts_regulation"]
     @staticmethod
     def get_stereotypes():
@@ -77,8 +77,6 @@ class BusinessFunctionality:
                                 "search_engine",
                                 "web_application",
                                 "web_server",
-                                "authorization_server",
-                                "authentication_server",
                                 "logging_server",
                                 "metrics_server",
                                 "monitoring_dashboard",
@@ -103,8 +101,18 @@ def merge_stereotypes(*args):
     merged_stereotypes = set()
     for arg in args:
         merged_stereotypes.update(arg.get_stereotypes())
-    merged_tuples = []
-    for stereotype in merged_stereotypes:
-        tuple = (stereotype, "traceability")
-        merged_tuples.append(tuple)
-    return merged_tuples
+    return list(merged_stereotypes)
+
+def without_traceability(stereotype_tuples: list) -> list[str]:
+    return [stuple[0] for stuple in stereotype_tuples]
+
+def with_traceability(stereotypes) -> list:
+    stuples = []
+    if isinstance(stereotypes, list) or isinstance(stereotypes, set):
+        for stereotype in stereotypes:
+            tuple = (stereotype, "traceability")
+            stuples.append(tuple)
+    else:
+        tuple = (stereotypes, "traceability")
+        stuples.append(tuple)
+    return stuples

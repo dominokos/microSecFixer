@@ -51,7 +51,7 @@ class RuleMap:
         "r18": fixer.r18_all_sanitize_logs,
         "r19": fixer.r19_registry_validate,
         "r20": fixer.r20_logger_to_message_broker,
-        "r21": fixer.r21_all_to_monitoring_dashboard,
+        "r21": fixer.r21_services_to_monitoring_dashboard,
         "r22": fixer.r22_connections_authorized,
         "r23": fixer.r23_connections_authenticated,
         "r24": fixer.r24_outer_connections_encrypted,

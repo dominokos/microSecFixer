@@ -88,7 +88,6 @@ def is_node_external_entity(node: 'CNode') -> bool:
     """
     stereotypes = [st[0] for st in node.stereotypes]
     external_stereotypes = ExternalEntity.get_stereotypes()
-    
     return external_stereotypes[0] in stereotypes
 
 def remove_encrypted_stereotype(stereotypes: list[tuple]) -> list[str]:
