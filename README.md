@@ -26,8 +26,8 @@ To start the tool via the terminal, simply enter `python ./microSecFixer/microse
 
 The tool creates multiple outputs:
 
-- The DFD is converted into [PlantUML](https://plantuml.com) and stored in `output/plantuml/{model_name}` as pure PlantUML text and as an SVG file.
-    - PlantUML can be converted into .png as needed, using the command `java -jar plantuml.jar -tpng "Path/To/file.txt"`.
+- The DFD is converted into [PlantUML](https://plantuml.com) and stored under `output/plantuml/original/{model_name}` as pure PlantUML text, a png and an svg file.
+- An idealised DFD is similarly stored under `output/plantuml/ideal/{model_name}` as pure PlantUML text, a png and an svg file.
 - A machine-readable version of the improved DFD is stored in JSON format under `output/json/{model_name}`.
 - Logs are saved in `output/logs/`.
 - The results of the security analysis are saved in `output/results/{model_name}`.
