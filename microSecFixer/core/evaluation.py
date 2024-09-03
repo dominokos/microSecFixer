@@ -11,7 +11,7 @@ def clear_result_dir(result_dir: str):
     for f in filelist:
         os.remove(os.path.join(result_dir, f))
 
-def find_all_violations(dfd_path: str) -> str:
+def find_all_violations_between(dfd_path: str, lower_bound: int, upper_bound: int) -> str:
     repo_name_json = dfd_path.split("models/")[1] 
     model_path = f".{dfd_path}"
     traceability_path = model_path.replace(".json", "_traceability.json")
@@ -21,13 +21,16 @@ def find_all_violations(dfd_path: str) -> str:
         os.makedirs(result_directory)
     clear_result_dir(result_directory)
 
-    for i in range(1, 26):
+    for i in range(lower_bound, upper_bound):
         result = evaluate_dfd(model_path, traceability_path, rule_map[i])
         # Skip if the verdict is positive (rule is adhered to)
         verdict = None
         for rule in result.property_check_evidence_json.values():
             if rule.get("verdict"):
                 verdict = rule["verdict"]
+                break
+            elif rule.get(next(iter(rule))):
+                verdict = rule[next(iter(rule))]["verdict"]
                 break
         if verdict:
             continue

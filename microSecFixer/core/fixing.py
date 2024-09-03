@@ -1,276 +1,440 @@
 from microCertiSec.core.node import CNode
 from microCertiSec.core.edge import CEdge
 from microCertiSec.core.model import CModel
-from microSecFixer.core.stereotypes import merge_stereotypes, without_traceability, with_traceability, BusinessFunctionality, LoggingServer, AllConnections, AllEntrypoints, AllNodes, AllServiceRegistries, AuthService, MessageBroker, MonitoringDashboard, Service, ExternalEntity, Database
+from microSecFixer.core.stereotypes import merge_stereotypes, collect_distinct_stereotypes, without_traceability, with_traceability, BusinessFunctionality, LoggingServer, AllConnections, AllEntrypoints, AllServices, AllServiceRegistries, AuthService, MessageBroker, MonitoringDashboard
 from microSecFixer.core.unparse import unparse_model
+from microSecFixer.core.edge_utils import create_edge, remove_edge, edges_switch_receiver, edges_switch_sender, find_all_edges_with_receiver, find_all_edges_with_sender
+from microSecFixer.core.node_utils import find_all_nodes_with_stereotype, find_node_with_stereotype, node_is_connected_to
 
 
 def r01_authorization_only(model: CModel) -> str:
+    """
+    No service that performs authorization should perform any other business functionality.
+    """
     nodes: set[CNode] = model.nodes.nodes
     for node in nodes:
-        if AuthService.get_stereotypes()[0] in without_traceability(node.stereotypes):
+        node_is_service = AllServices.get_stereotypes()[0]
+        service_is_authorization_server = AuthService.get_stereotypes()[0] in without_traceability(node.stereotypes)
+        if node_is_service and service_is_authorization_server:
             intersection = list(set(with_traceability(BusinessFunctionality.get_stereotypes())) & set(node.stereotypes))
             node.stereotypes = node.stereotypes - intersection
-    model.nodes.update_nodes(nodes)
     return unparse_model(model)
 
 def r02_authentication_only(model: CModel) -> str:
+    """
+    No service that performs authentication should perform any other business functionality.
+    """
     nodes: set[CNode] = model.nodes.nodes
     for node in nodes:
-        if AuthService.get_stereotypes()[1] in without_traceability(node.stereotypes):
+        node_is_service = AllServices.get_stereotypes()[0]
+        service_is_authentication_server = AuthService.get_stereotypes()[1] in without_traceability(node.stereotypes)
+        if node_is_service and service_is_authentication_server:
             intersection = list(set(with_traceability(BusinessFunctionality.get_stereotypes())) & set(node.stereotypes))
             node.stereotypes = node.stereotypes - intersection
-    model.nodes.update_nodes(nodes)
     unparse_model(model)
 
 def r03_logging_system_disconnect(model: CModel) -> str:
+    """
+    No service that performs logging should be connected to a central logging subsystem.
+    """
     nodes: set[CNode] = model.nodes.nodes
     edges: set[CEdge] = model.edges.edges
-    logging_server: CNode = get_node_with_stereotype(nodes, LoggingServer.get_stereotypes()[0])
+    logging_servers: list[CNode] = find_all_nodes_with_stereotype(nodes, LoggingServer.get_stereotypes()[0])
     for node in nodes:
         node_is_message_broker = MessageBroker.get_stereotypes()[0] in without_traceability(node.stereotypes)
         if not node_is_message_broker:
             for con_node in node.connected_nodes:
-                if con_node == logging_server:
-                    edges = remove_edge(node, logging_server, edges)
+                if con_node in logging_servers:
+                    index = logging_servers.index(con_node)
+                    edges = remove_edge(node, logging_servers[index], edges)
                     node.connected_nodes.remove(con_node)
-    model.edges.update_edges(edges)
     return unparse_model(model)
 
 def r04_single_entry(model: CModel) -> str:
+    """
+    There should be a single service as entry point.
+    """
     nodes: set[CNode] = model.nodes.nodes
+    entrypoints: list[CNode] = find_all_nodes_with_stereotype(nodes, AllEntrypoints.get_stereotypes()[0])
+    distinct_stereotypes: list = []
+    tagged_values: set = {}
+    edges_from_entrypoints: set[CNode] = {}
+    edges_to_entrypoints: set[CNode] = {}
+    edges: set[CEdge] = model.edges.edges
+    if entrypoints:
+        for entrypoint in entrypoints:
+            distinct_stereotypes = collect_distinct_stereotypes(entrypoint.stereotypes, AllEntrypoints.get_stereotypes())
+            tagged_values.update(entrypoint.tagged_values)
+            edges_from_entrypoints.update(find_all_edges_with_receiver(entrypoint, edges))
+            edges_to_entrypoints.update(find_all_edges_with_sender(entrypoint, edges))
+            nodes.remove(entrypoint)
+
     node_traceability = "traceability"
-    nodes.add(CNode(AllEntrypoints.get_stereotypes()[0], with_traceability(merge_stereotypes(AllEntrypoints, AllNodes, Service)), node_traceability))
-    model.nodes.update_nodes(nodes)
+    merged_entrypoint = CNode(AllEntrypoints.get_stereotypes()[0], with_traceability(merge_stereotypes(AllEntrypoints, AllServices)) + distinct_stereotypes, node_traceability, [], tagged_values)
+    edges_switch_receiver(edges_to_entrypoints, merged_entrypoint)
+    edges_switch_sender(edges_from_entrypoints, merged_entrypoint)
+    nodes.add(merged_entrypoint)
     return unparse_model(model)
 
 def r05_single_authorization(model: CModel) -> str:
+    """
+    There should be a single authorization service.
+    """
     nodes: set[CNode] = model.nodes.nodes
+    authorization_servers: list[CNode] = find_all_nodes_with_stereotype(nodes, AuthService.get_stereotypes()[0])
+    distinct_stereotypes: list = []
+    tagged_values: set = {}
+    edges_from_authorization_server: set[CNode] = {}
+    edges_to_authorization_server: set[CNode] = {}
+    edges: set[CEdge] = model.edges.edges
+    if authorization_servers:
+        for auth in authorization_servers:
+            distinct_stereotypes = collect_distinct_stereotypes(auth.stereotypes, AuthService.get_stereotypes())
+            tagged_values.update(auth.tagged_values)
+            edges_from_authorization_server.update(find_all_edges_with_receiver(auth, edges))
+            edges_to_authorization_server.update(find_all_edges_with_sender(auth, edges))
+            nodes.remove(auth)
+
     node_traceability = "traceability"
-    nodes.add(CNode(AuthService.get_stereotypes()[0], with_traceability(merge_stereotypes(AuthService, AllNodes, Service)), node_traceability))
-    model.nodes.update_nodes(nodes)
+    merged_authorization_server = CNode(AuthService.get_stereotypes()[0], with_traceability(merge_stereotypes(AuthService, AllServices)) + distinct_stereotypes, node_traceability, [], tagged_values)
+    edges_switch_receiver(edges_to_authorization_server, merged_authorization_server)
+    edges_switch_sender(edges_from_authorization_server, merged_authorization_server)
+    nodes.add(merged_authorization_server)
     return unparse_model(model)
 
 def r06_single_authentication(model: CModel) -> str:
+    """
+    There should be a single authentication service.
+    """
     nodes: set[CNode] = model.nodes.nodes
+    authentication_servers: list[CNode] = find_all_nodes_with_stereotype(nodes, AuthService.get_stereotypes()[1])
+    distinct_stereotypes: list = []
+    tagged_values: set = {}
+    edges_from_authentication_servers: set[CNode] = {}
+    edges_to_authentication_servers: set[CNode] = {}
+    edges: set[CEdge] = model.edges.edges
+    if authentication_servers:
+        for auth in authentication_servers:
+            distinct_stereotypes = collect_distinct_stereotypes(auth.stereotypes, AuthService.get_stereotypes())
+            tagged_values.update(auth.tagged_values)
+            edges_from_authentication_servers.update(find_all_edges_with_receiver(auth, edges))
+            edges_to_authentication_servers.update(find_all_edges_with_sender(auth, edges))
+            nodes.remove(auth)
+
     node_traceability = "traceability"
-    nodes.add(CNode(AuthService.get_stereotypes()[1], with_traceability(merge_stereotypes(AuthService, AllNodes, Service)), node_traceability))
-    model.nodes.update_nodes(nodes)
+    merged_authentication_server = CNode(AuthService.get_stereotypes()[1], with_traceability(merge_stereotypes(AuthService, AllServices)) + distinct_stereotypes, node_traceability, [], tagged_values)
+    edges_switch_receiver(edges_to_authentication_servers, merged_authentication_server)
+    edges_switch_sender(edges_from_authentication_servers, merged_authentication_server)
+    nodes.add(merged_authentication_server)
     return unparse_model(model)
 
 def r07_single_log_subsystem(model: CModel) -> str:
+    """
+    There should be a single central logging subsystem.
+    """
     nodes: set[CNode] = model.nodes.nodes
+    logging_servers: list[CNode] = find_all_nodes_with_stereotype(nodes, LoggingServer.get_stereotypes()[0])
+    distinct_stereotypes: list = []
+    tagged_values: set = {}
+    edges_from_logging_servers: set[CNode] = {}
+    edges_to_logging_servers: set[CNode] = {}
+    edges: set[CEdge] = model.edges.edges
+    if logging_servers:
+        for logging_server in logging_servers:
+            distinct_stereotypes = collect_distinct_stereotypes(logging_server.stereotypes, LoggingServer.get_stereotypes())
+            tagged_values.update(logging_server.tagged_values)
+            edges_from_logging_servers.update(find_all_edges_with_receiver(logging_server, edges))
+            edges_to_logging_servers.update(find_all_edges_with_sender(logging_server, edges))
+            nodes.remove(logging_server)
+
     node_traceability = "traceability"
-    nodes.add(CNode(LoggingServer.get_stereotypes()[0], with_traceability(merge_stereotypes(LoggingServer, AllNodes, Service)), node_traceability))
-    model.nodes.update_nodes(nodes)
+    merged_logging_server = CNode(LoggingServer.get_stereotypes()[0], with_traceability(merge_stereotypes(LoggingServer, AllServices)) + distinct_stereotypes, node_traceability, [], tagged_values)
+    edges_switch_receiver(edges_to_logging_servers, merged_logging_server)
+    edges_switch_sender(edges_from_logging_servers, merged_logging_server)
+    nodes.add(merged_logging_server)
     return unparse_model(model)
 
 
 def r08_single_registry(model: CModel) -> str:
+    """
+    There should be a single service registry.
+    """
     nodes: set[CNode] = model.nodes.nodes
+    registries: list[CNode] = find_all_nodes_with_stereotype(nodes, AllServiceRegistries.get_stereotypes()[0])
+    distinct_stereotypes: list = []
+    tagged_values: set = {}
+    edges_from_registries: set[CNode] = {}
+    edges_to_registries: set[CNode] = {}
+    edges: set[CEdge] = model.edges.edges
+    if registries:
+        for registry in registries:
+            distinct_stereotypes = collect_distinct_stereotypes(registry.stereotypes, AllServiceRegistries.get_stereotypes())
+            tagged_values.update(registry.tagged_values)
+            edges_from_registries.update(find_all_edges_with_receiver(registry, edges))
+            edges_to_registries.update(find_all_edges_with_sender(registry, edges))
+            nodes.remove(registry)
+
     node_traceability = "traceability"
-    nodes.add(CNode(AllServiceRegistries.get_stereotypes()[0], with_traceability(merge_stereotypes(AllServiceRegistries, AllNodes, Service)), node_traceability))
-    model.nodes.update_nodes(nodes)
+    merged_registry = CNode(AllServiceRegistries.get_stereotypes()[0], with_traceability(merge_stereotypes(AllServiceRegistries, AllServices)) + distinct_stereotypes, node_traceability, [], tagged_values)
+    edges_switch_receiver(edges_to_registries, merged_registry)
+    edges_switch_sender(edges_from_registries, merged_registry)
+    nodes.add(merged_registry)
     return unparse_model(model)
 
 def r09_single_secret_store(model: CModel) -> str:
+    """
+    There should be a single central secret store.
+    """
     nodes: set[CNode] = model.nodes.nodes
     auth_found = False
     for node in nodes:
-        if node.name == AuthService.get_stereotypes()[0] or node.name == AuthService.get_stereotypes()[1] or AuthService.get_stereotypes()[0] in without_traceability(node.stereotypes) or AuthService.get_stereotypes()[1] in without_traceability(node.stereotypes):
+        node_is_authorization_server = AuthService.get_stereotypes()[0] in without_traceability(node.stereotypes)
+        node_is_authentication_server = AuthService.get_stereotypes()[1] in without_traceability(node.stereotypes)
+        if  node_is_authorization_server or node_is_authentication_server:
             node.stereotypes.extend(with_traceability(AuthService.get_stereotypes()[2]))
             auth_found = True
     if not auth_found:
-        node_traceability = "traceability"
-        nodes.add(CNode(AuthService.get_stereotypes()[0], with_traceability(merge_stereotypes(AuthService, AllNodes, Service)), node_traceability))
-    model.nodes.update_nodes(nodes)
+        return r05_single_authorization(model)
     return unparse_model(model)
     
 
-def r10_single_monitoring_dashboard(model: CModel) -> str:
+def r10_monitoring_dashboard(model: CModel) -> str:
+    """
+    There should be a monitoring dashboard.
+    """
     nodes: set[CNode] = model.nodes.nodes
     node_traceability = "traceability"
-    nodes.add(CNode(MonitoringDashboard.get_stereotypes()[0], with_traceability(merge_stereotypes(MonitoringDashboard, AllNodes, Service)), node_traceability))
-    model.nodes.update_nodes(nodes)
+    nodes.add(CNode(MonitoringDashboard.get_stereotypes()[0], with_traceability(merge_stereotypes(MonitoringDashboard, AllServices)), node_traceability))
     return unparse_model(model)
 
-def r11_single_message_broker(model: CModel) -> str:
+def r11_message_broker(model: CModel) -> str:
+    """
+    There should be a message broker.
+    """
     nodes: set[CNode] = model.nodes.nodes
     node_traceability = "traceability"
-    nodes.add(CNode(MessageBroker.get_stereotypes()[0], with_traceability(merge_stereotypes(MessageBroker, AllNodes, Service)), node_traceability))
-    model.nodes.update_nodes(nodes)
+    nodes.add(CNode(MessageBroker.get_stereotypes()[0], with_traceability(merge_stereotypes(MessageBroker, AllServices)), node_traceability))
     return unparse_model(model)
 
 def r12_single_login_attempt_limiter(model: CModel) -> str:
+    """
+    There should be a service limiting the number of login attempts.
+    """
     nodes: set[CNode] = model.nodes.nodes
     entrypoint_found = False
     for node in nodes:
-        if node.name == AllEntrypoints.get_stereotypes()[0] or AllEntrypoints.get_stereotypes()[0] in without_traceability(node.stereotypes):
-            node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[5]))
+        node_is_entrypoint = AllEntrypoints.get_stereotypes()[0] in without_traceability(node.stereotypes)
+        if node_is_entrypoint:
+            entrypoint_does_limit_attempts = AllEntrypoints.get_stereotypes()[5] in without_traceability(node.stereotypes)
+            if not entrypoint_does_limit_attempts:
+                node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[5]))
             entrypoint_found = True
     if not entrypoint_found:
-        node_traceability = "traceability"
-        nodes.add(CNode(AllEntrypoints.get_stereotypes()[0], with_traceability(merge_stereotypes(AllEntrypoints, AllNodes, Service)), node_traceability))
-    model.nodes.update_nodes(nodes)
+        return r04_single_entry(model)
     return unparse_model(model)
 
 def r13_entrypoint_authorization(model: CModel) -> str:
+    """
+    All entry points should perform authorization.
+    """
     nodes: set[CNode] = model.nodes.nodes
     entrypoint_found = False
     for node in nodes:
-        if node.name == AllEntrypoints.get_stereotypes()[0] or AllEntrypoints.get_stereotypes()[0] in without_traceability(node.stereotypes):
-            node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[1]))
+        node_is_entrypoint = AllEntrypoints.get_stereotypes()[0] in without_traceability(node.stereotypes)
+        if node_is_entrypoint:
+            entrypoint_has_authorization = AllEntrypoints.get_stereotypes()[1] in without_traceability(node.stereotypes)
+            if not entrypoint_has_authorization:
+                node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[1]))
             entrypoint_found = True
     if not entrypoint_found:
-        node_traceability = "traceability"
-        nodes.add(CNode(AllEntrypoints.get_stereotypes()[0], with_traceability(merge_stereotypes(AllEntrypoints, AllNodes, Service)), node_traceability))
-    model.nodes.update_nodes(nodes)
+        return r04_single_entry(model)
     return unparse_model(model)
 
 def r14_entrypoint_authentication(model: CModel) -> str:
+    """
+    All entry points should perform authentication.
+    """
     nodes: set[CNode] = model.nodes.nodes
     entrypoint_found = False
     for node in nodes:
-        if node.name == AllEntrypoints.get_stereotypes()[0] or AllEntrypoints.get_stereotypes()[0] in without_traceability(node.stereotypes):
-            node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[2]))
+        node_is_entrypoint = AllEntrypoints.get_stereotypes()[0] in without_traceability(node.stereotypes)
+        entrypoint_has_authentication = AllEntrypoints.get_stereotypes()[2] in without_traceability(node.stereotypes)
+        if node_is_entrypoint:
+            entrypoint_has_authentication = AllEntrypoints.get_stereotypes()[2] in without_traceability(node.stereotypes)
+            if not entrypoint_has_authentication:
+                node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[2]))
             entrypoint_found = True
     if not entrypoint_found:
-        node_traceability = "traceability"
-        nodes.add(CNode(AllEntrypoints.get_stereotypes()[0], with_traceability(merge_stereotypes(AllEntrypoints, AllNodes, Service)), node_traceability))
-    model.nodes.update_nodes(nodes)
+        return r04_single_entry(model)
     return unparse_model(model)
 
 def r15_entrypoint_circuit_breaker(model: CModel) -> str:
+    """
+    All entry points should have a circuit breaker.
+    """
     nodes: set[CNode] = model.nodes.nodes
     entrypoint_found = False
     for node in nodes:
-        if node.name == AllEntrypoints.get_stereotypes()[0] or AllEntrypoints.get_stereotypes()[0] in without_traceability(node.stereotypes):
-            node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[3]))
+        node_is_entrypoint = AllEntrypoints.get_stereotypes()[0] in without_traceability(node.stereotypes)
+        if node_is_entrypoint:
+            entrypoint_has_circuitbreaker = AllEntrypoints.get_stereotypes()[3] in without_traceability(node.stereotypes)
+            if not entrypoint_has_circuitbreaker:
+                node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[3]))
             entrypoint_found = True
     if not entrypoint_found:
-        node_traceability = "traceability"
-        nodes.add(CNode(AllEntrypoints.get_stereotypes()[0], with_traceability(merge_stereotypes(AllEntrypoints, AllNodes, Service)), node_traceability))
-    model.nodes.update_nodes(nodes)
+        return r04_single_entry(model)
     return unparse_model(model)
 
 def r16_entrypoint_load_balancer(model: CModel) -> str:
+    """
+    All entry points should have a load balancer.
+    """
     nodes: set[CNode] = model.nodes.nodes
     entrypoint_found = False
     for node in nodes:
-        if node.name == AllEntrypoints.get_stereotypes()[0] or AllEntrypoints.get_stereotypes()[0] in without_traceability(node.stereotypes):
-            node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[4]))
+        node_is_entrypoint = AllEntrypoints.get_stereotypes()[0] in without_traceability(node.stereotypes)
+        entrypoint_has_loadbalancer = AllEntrypoints.get_stereotypes()[4] in without_traceability(node.stereotypes)
+        if node_is_entrypoint:
+            entrypoint_has_loadbalancer = AllEntrypoints.get_stereotypes()[4] in without_traceability(node.stereotypes)
+            if not entrypoint_has_loadbalancer:
+                node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[4]))
             entrypoint_found = True
     if not entrypoint_found:
-        node_traceability = "traceability"
-        nodes.add(CNode(AllEntrypoints.get_stereotypes()[0], with_traceability(merge_stereotypes(AllEntrypoints, AllNodes, Service)), node_traceability))
-    model.nodes.update_nodes(nodes)
+        return r04_single_entry(model)
     return unparse_model(model)
 
-def r17_all_logging(model: CModel) -> str:
+def r17_services_logging(model: CModel) -> str:
+    """
+    All services should perform logging.
+    """
     nodes: set[CNode] = model.nodes.nodes
     for node in nodes:
-        if not AllNodes.get_stereotypes()[0] in without_traceability(node.stereotypes):
-            node.stereotypes.extend(with_traceability(AllNodes.get_stereotypes()[0]))
-    model.nodes.update_nodes(nodes)
+        node_is_service = AllServices.get_stereotypes()[0] in without_traceability(node.stereotypes)
+        service_does_logging = AllServices.get_stereotypes()[1] in without_traceability(node.stereotypes)
+        if node_is_service and not service_does_logging:
+            node.stereotypes.extend(with_traceability(AllServices.get_stereotypes()[1]))
     return unparse_model(model)
 
-def r18_all_sanitize_logs(model: CModel) -> str:
+def r18_services_sanitize_logs(model: CModel) -> str:
+    """
+    All services should sanitize logs.
+    """
     nodes: set[CNode] = model.nodes.nodes
     for node in nodes:
-        if not AllNodes.get_stereotypes()[1] in without_traceability(node.stereotypes):
-            node.stereotypes.extend(with_traceability(AllNodes.get_stereotypes()[1]))
-    model.nodes.update_nodes(nodes)
+        node_is_service = AllServices.get_stereotypes()[0] in without_traceability(node.stereotypes)
+        node_does_sanitization = AllServices.get_stereotypes()[2] in without_traceability(node.stereotypes)
+        if node_is_service and not node_does_sanitization :
+            node.stereotypes.extend(with_traceability(AllServices.get_stereotypes()[2]))
     return unparse_model(model)
 
 def r19_registry_validate(model: CModel) -> str:
+    """
+    All service registries should have validation checks for incoming requests.
+    """
     nodes: set[CNode] = model.nodes.nodes
     registry_found = False
     for node in nodes:
-        if node.name == AllServiceRegistries.get_stereotypes()[0] or AllServiceRegistries.get_stereotypes()[0] in without_traceability(node.stereotypes):
-            if not AllServiceRegistries.get_stereotypes()[1] in without_traceability(node.stereotypes):
+        node_is_service_registry = AllServiceRegistries.get_stereotypes()[0] in without_traceability(node.stereotypes)
+        if node_is_service_registry:
+            is_registry_validated = AllServiceRegistries.get_stereotypes()[1] in without_traceability(node.stereotypes)
+            if not is_registry_validated:
                 node.stereotypes.extend(with_traceability(AllServiceRegistries.get_stereotypes()[1]))
             registry_found = True
     if not registry_found:
         node_traceability = "traceability"
-        nodes.add(CNode(AllServiceRegistries.get_stereotypes()[0], with_traceability(merge_stereotypes(AllServiceRegistries, AllNodes, Service)), node_traceability))
-    model.nodes.update_nodes(nodes)
+        nodes.add(CNode(AllServiceRegistries.get_stereotypes()[0], with_traceability(merge_stereotypes(AllServiceRegistries, AllServices)), node_traceability))
     return unparse_model(model)
 
 def r20_logger_to_message_broker(model: CModel) -> str:
+    """
+    All services that perform logging should be connected to a message broker.
+    """
     nodes: set[CNode] = model.nodes.nodes
     edges: set[CEdge] = model.edges.edges
+    message_broker = find_node_with_stereotype(nodes, MessageBroker.get_stereotypes()[0])
+    if not message_broker:
+        r11_message_broker(model)
+        message_broker = find_node_with_stereotype(nodes, MessageBroker.get_stereotypes()[0])
+    logging_server = find_node_with_stereotype(nodes, LoggingServer.get_stereotypes()[0])
+    if not logging_server:
+        r07_single_log_subsystem(model)
+        logging_server = find_node_with_stereotype(nodes, LoggingServer.get_stereotypes()[0])
     for node in nodes:
-        node_is_message_broker = MessageBroker.get_stereotypes()[0] in without_traceability(node.stereotypes)
-        if AllNodes.get_stereotypes()[0] in without_traceability(node.stereotypes) and not node_is_message_broker:
-            message_broker = get_node_with_stereotype(nodes, MessageBroker.get_stereotypes()[0])
-            if not message_broker:
-                r11_single_message_broker(model)
-                message_broker = get_node_with_stereotype(nodes, MessageBroker.get_stereotypes()[0])
+        node_is_service = AllServices.get_stereotypes()[0] in without_traceability(node.stereotypes)
+        service_does_logging = AllServices.get_stereotypes()[1] in without_traceability(node.stereotypes)
+        service_is_message_broker = node == message_broker
+        if node_is_service and service_does_logging and not service_is_message_broker and not node_is_connected_to(node, message_broker) :
             edge: CEdge = create_edge(node, message_broker)
             edges.add(edge)
-    model.edges.update_edges(edges)
+            node.connected_nodes.append(message_broker)
+    if not node_is_connected_to(message_broker, logging_server):
+        logging_edge = create_edge(message_broker, logging_server)
+        message_broker.connected_nodes.append(logging_server)
+        edges.add(logging_edge)
     return unparse_model(model)
             
 
 def r21_services_to_monitoring_dashboard(model: CModel) -> str:
+    """
+    All services should be connected to a monitoring dashboard.
+    """
     nodes: set[CNode] = model.nodes.nodes
     edges: set[CEdge] = model.edges.edges
+    monitoring_dashboard = find_node_with_stereotype(nodes, MonitoringDashboard.get_stereotypes()[0])
+    if not monitoring_dashboard:
+        r10_monitoring_dashboard(model)
+        monitoring_dashboard = find_node_with_stereotype(nodes, MonitoringDashboard.get_stereotypes()[0])
     for node in nodes:
-        node_is_monitoring_dashboard = MonitoringDashboard.get_stereotypes()[0] in without_traceability(node.stereotypes)
-        if Service.get_stereotypes()[0] in without_traceability(node.stereotypes) and not node_is_monitoring_dashboard:
-            monitoring_dashboard = get_node_with_stereotype(nodes, MonitoringDashboard.get_stereotypes()[0])
-            if not monitoring_dashboard:
-                r10_single_monitoring_dashboard(model)
-                monitoring_dashboard = get_node_with_stereotype(nodes, MonitoringDashboard.get_stereotypes()[0])
+        node_is_service = AllServices.get_stereotypes()[0] in without_traceability(node.stereotypes)
+        service_is_monitoring_dashboard = node == monitoring_dashboard
+        if node_is_service and not service_is_monitoring_dashboard and not node_is_connected_to(node, monitoring_dashboard):
             edge: CEdge = create_edge(node, monitoring_dashboard)
             edges.add(edge)
-    model.edges.update_edges(edges)
+            node.connected_nodes.append(monitoring_dashboard)
     return unparse_model(model)
 
 def r22_connections_authorized(model: CModel) -> str:
+    """
+    All connections between services should be authorized.
+    """
     edges: set[CEdge] = model.edges.edges
     for edge in edges:
-        if not AllConnections.get_stereotypes()[0] in without_traceability(edge.stereotypes):
+        edge_is_authorized = AllConnections.get_stereotypes()[0] in without_traceability(edge.stereotypes)
+        sender_and_receiver_internal = AllServices.get_stereotypes()[3] in without_traceability(edge.sender.stereotypes) and AllServices.get_stereotypes()[3] in without_traceability(edge.receiver.stereotypes)
+        if sender_and_receiver_internal and not edge_is_authorized:
             edge.stereotypes.extend(with_traceability(AllConnections.get_stereotypes()[0]))
-    model.edges.update_nodes(edges)
     return unparse_model(model)
 
 def r23_connections_authenticated(model: CModel) -> str:
+    """
+    All connections between services should be authenticated.
+    """
     edges: set[CEdge] = model.edges.edges
     for edge in edges:
-        if not AllConnections.get_stereotypes()[1] in without_traceability(edge.stereotypes):
+        edge_is_authenticated = AllConnections.get_stereotypes()[1] in without_traceability(edge.stereotypes)
+        sender_and_receiver_internal = AllServices.get_stereotypes()[3] in without_traceability(edge.sender.stereotypes) and AllServices.get_stereotypes()[3] in without_traceability(edge.receiver.stereotypes)
+        if sender_and_receiver_internal and not edge_is_authenticated:
             edge.stereotypes.extend(with_traceability(AllConnections.get_stereotypes()[1]))
-    model.edges.update_edges(edges)
     return unparse_model(model)
 
 def r24_outer_connections_encrypted(model: CModel) -> str:
+    """
+    All connections between a service and an external entity should be encrypted.
+    """
     edges: set[CEdge] = model.edges.edges
     for edge in edges:
-        if not AllConnections.get_stereotypes()[2] in without_traceability(edge.stereotypes):
+        edge_is_encrypted = AllConnections.get_stereotypes()[2] in without_traceability(edge.stereotypes)
+        if not edge_is_encrypted:
             edge.stereotypes.extend(with_traceability(AllConnections.get_stereotypes()[2]))
-    model.edges.update_edges(edges)
     return unparse_model(model)
 
 def r25_inner_connections_encrypted(model: CModel) -> str:
+    """
+    All connections between two services should be encrypted.
+    """
     edges: set[CEdge] = model.edges.edges
     for edge in edges:
-        if not AllConnections.get_stereotypes()[2] in without_traceability(edge.stereotypes):
+        edge_is_encrypted = AllConnections.get_stereotypes()[2] in without_traceability(edge.stereotypes)
+        if not edge_is_encrypted:
             edge.stereotypes.extend(with_traceability(AllConnections.get_stereotypes()[2]))
-    model.edges.update_edges(edges)
     return unparse_model(model)
-
-def get_node_with_stereotype(nodes: list[CNode], stereotype: str):
-    for node in nodes:
-        if stereotype in without_traceability(node.stereotypes):
-            return node
-    return None
-
-def create_edge(sender: CNode, receiver: CNode) -> CEdge:
-    edge_traceability = "traceability"
-    return CEdge(sender, receiver, with_traceability(AllConnections.get_stereotypes()), edge_traceability)
-
-def remove_edge(sender: CNode, receiver: CNode, edges: set[CEdge]) -> set[CEdge]:
-    for edge in edges:
-        if edge.sender == sender and edge.receiver == receiver:
-            edges.remove(edge)
-            return edges

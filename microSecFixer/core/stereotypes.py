@@ -1,10 +1,14 @@
+from microCertiSec.core.node import CNode
+
 # Node-specific stereotypes
-class AllNodes:
-    nodes_stereotypes = ["local_logging",
-                         "log_sanitization"]
+class AllServices:
+    nodes_stereotypes = ["service",
+                         "local_logging",
+                         "log_sanitization",
+                         "internal"]
     @staticmethod
     def get_stereotypes():
-        return AllNodes.nodes_stereotypes
+        return AllServices.nodes_stereotypes
 
 class AllEntrypoints:
     entrypoints_stereotypes = ["entrypoint",
@@ -55,12 +59,6 @@ class ExternalEntity:
     @staticmethod
     def get_stereotypes():
         return ExternalEntity.external_component_stereotypes
-    
-class Service:
-    service_stereotypes = ["service"]
-    @staticmethod
-    def get_stereotypes():
-        return Service.service_stereotypes
 
 class Database:
     database_stereotypes = ["database"]
@@ -116,3 +114,7 @@ def with_traceability(stereotypes) -> list:
         tuple = (stereotypes, "traceability")
         stuples.append(tuple)
     return stuples
+
+def collect_distinct_stereotypes(actual_stereotypes: list, node_typical_stereotypes: list[str]) -> list:
+    distinct_stereotypes = set(actual_stereotypes) - set(with_traceability(node_typical_stereotypes))
+    return list(distinct_stereotypes)

@@ -3,7 +3,7 @@ import os
 from microCertiSec.core.node import CNode
 from microCertiSec.core.edge import CEdge
 from microCertiSec.core.model import CModel
-from microSecFixer.core.stereotypes import ExternalEntity
+from microSecFixer.core.stereotypes import ExternalEntity, without_traceability
 
 def unparse_model(model: CModel) -> str:
     """
@@ -50,7 +50,7 @@ def nodes_to_services_or_external_entities(nodes: set['CNode'], services: list[d
     for node in nodes:
         entity = {
             "name": node.name,
-            "stereotypes": [st[0] for st in node.stereotypes],
+            "stereotypes": without_traceability(node.stereotypes),
             "tagged_values": node.tagged_values
         }
         
@@ -68,10 +68,11 @@ def edges_to_information_flows(edges: set['CEdge'], information_flows: list[dict
         information_flows (list[dict]): List to store information flows.
     """
     for edge in edges:
+        remove_encrypted_stereotype(edge)
         information_flow = {
             "sender": edge.sender.name,
             "receiver": edge.receiver.name,
-            "stereotypes": remove_encrypted_stereotype(edge.stereotypes),
+            "stereotypes": without_traceability(edge.stereotypes),
             "tagged_values": edge.tagged_values
         }
         information_flows.append(information_flow)
@@ -90,14 +91,17 @@ def is_node_external_entity(node: 'CNode') -> bool:
     external_stereotypes = ExternalEntity.get_stereotypes()
     return external_stereotypes[0] in stereotypes
 
-def remove_encrypted_stereotype(stereotypes: list[tuple]) -> list[str]:
+def remove_encrypted_stereotype(edge):
     """
-    Removes the 'encrypted' stereotype from the list.
+    Removes the 'encrypted' stereotype from the edge if the edge has tagged value with HTTPS,
+    because the parser in microCertiSec adds the encrypted stereotype back in, when it finds the HTTPS.
 
     Args:
-        stereotypes (List[tuple]): List of stereotypes as tuples.
+        edge (CEdge): An edge with sender, receiver, stereotypes and tagged values.
 
     Returns:
-        List[str]: List of stereotypes with 'encrypted' removed.
+        Nothing
     """
-    return [st[0] for st in stereotypes if st[0] != "encrypted"]
+    for t in edge.tagged_values:
+            if t == "Protocol" and edge.tagged_values[t] == "HTTPS" and ("encrypted", "traceability") in edge.stereotypes:
+                edge.stereotypes.remove(("encrypted", "traceability"))
