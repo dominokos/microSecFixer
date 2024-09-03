@@ -45,9 +45,9 @@ def output_svg(plantuml_filepath: str):
         print(f"An error occurred: {e}")
     
 def output_png(plantuml_filepath: str):
-    """Converts CodeableModels output into different PlantUML graphics and renders it as PNG.
     """
-
+    Converts CodeableModels output into different PlantUML graphics and renders it as PNG.
+    """
     generator = plantuml.PlantUML(url = "http://www.plantuml.com/plantuml/img/")
     try:
         generator.processes_file(filename = plantuml_filepath, outfile = plantuml_filepath.replace("plantuml_source", "png").replace("txt", "png"))
