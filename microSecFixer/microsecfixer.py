@@ -9,7 +9,7 @@ from datetime import datetime
 
 from microCertiSec.core.model import CModel
 import microSecFixer.core.visualizer as visualizer
-from microSecFixer.core.evaluation import find_all_violations_between
+from microSecFixer.core.evaluation import find_all_violations
 import microSecFixer.core.logger as logger
 from microSecFixer.core.rule_map import RuleMap
 import microSecFixer.tmp.tmp as temp
@@ -36,6 +36,8 @@ def main():
     start_time = now.strftime("%H:%M:%S")
 
     logger.write_log_message("*** New execution ***", "info")
+    print("\nStarted", start_time)
+
     
     ini_config = ConfigParser()
     ini_config.read('config/config.ini')
@@ -45,26 +47,20 @@ def main():
     visualize_dfd(dfd_path, "original")
 
     # calling microCertiSec to evaluate the security of the model and saving the results under output/results/{model name}
-    result_dir = find_all_violations_between(dfd_path, 1, 26)
+    result_dir = find_all_violations(dfd_path)
     results = os.listdir(result_dir)
     fixing_map = RuleMap.get_fixes()
     while(results):
         model_path = f".{dfd_path}"
         rule = results[0][:3]
         dfd_path = fixing_map[rule](get_model(model_path))
-        rule_number = int(rule[-2:])
-        upper_bound = 26
-        if len(results) > 1:
-            next_failing_rule = results[1][:3]
-            upper_bound = min(26, int(next_failing_rule[-2:])+2)
-        result_dir = find_all_violations_between(dfd_path, rule_number, upper_bound)
+        result_dir = find_all_violations(dfd_path)
         results = os.listdir(result_dir)
 
     visualize_dfd(dfd_path, "ideal")
     now = datetime.now()
     end_time = now.strftime("%H:%M:%S")
 
-    print("\nStarted", start_time)
     print("Finished", end_time)
 
 if __name__ == '__main__':
