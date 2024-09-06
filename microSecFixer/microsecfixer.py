@@ -20,11 +20,6 @@ from microCertiSec.microCertiSec import model_api
 arg_parser = argparse.ArgumentParser(prog = "microSecFixer",
                                     description = "Takes a architectural model in JSON format and generates an \"ideal\" model which fulfills the rules introduced in microCertiSec.")
 
-arg_parser.add_argument("input_path",
-                        metavar = "input-path",
-                        type = str,
-                        help = "Path to the model file.")
-
 arg_parser.add_argument("rule_to_check",
                         metavar = "rule-to-check",
                         type = int,
@@ -70,10 +65,6 @@ def fix_one(dfd_path: str, rule_to_check: int,  output_path: str):
     if not verdict:
         print("Something went horribly wrong.")
         return
-    
-    
-
-
 
 def fix_all(dfd_path: str, output_path: str):
     visualize_dfd(dfd_path, "original", output_path)
@@ -94,18 +85,16 @@ def fix_all(dfd_path: str, output_path: str):
 def main(args):
     now = datetime.now()
     start_time = now.strftime("%H:%M:%S")
+    
     logger.write_log_message("*** New execution ***", "info")
     print("\nStarted", start_time)
 
     arguments = arg_parser.parse_args(args)
-
-    if arguments.input_path:
-        dfd_path = arguments.input_path
-    else:
-        ini_config = ConfigParser()
-        ini_config.read('config/config.ini')
-        insertConfigIntoTemp(ini_config)
-        dfd_path = temp.tmp_config.get("Repository", "dfd_path")
+    
+    ini_config = ConfigParser()
+    ini_config.read('config/config.ini')
+    insertConfigIntoTemp(ini_config)
+    dfd_path = temp.tmp_config.get("Repository", "dfd_path")
 
     if arguments.op:
         output_path = arguments.op

@@ -12,8 +12,8 @@ def clear_result_dir(result_dir: str):
         os.remove(os.path.join(result_dir, f))
 
 def find_all_violations(dfd_path: str, output_path: str) -> str:
-    repo_name_json = dfd_path.split("models/")[1] 
-    model_path = f".{dfd_path}"
+    repo_name_json = dfd_path.split("/")[-1:][0]
+    model_path = os.getcwd() + dfd_path
     traceability_path = model_path.replace(".json", "_traceability.json")
     rule_map = RuleMap.get_rules()
     result_directory = f"{output_path}results/{repo_name_json}/"
@@ -43,8 +43,8 @@ def find_all_violations(dfd_path: str, output_path: str) -> str:
     return result_directory
 
 def find_violation(dfd_path: str, rule_to_check: str, output_path: str) -> tuple[str, bool]:
-    repo_name_json = dfd_path.split("/")[1] 
-    model_path = dfd_path
+    repo_name_json = dfd_path.split("/")[-1:][0]
+    model_path = os.getcwd() + dfd_path
     rule_map = RuleMap.get_rules()
     result_directory = f"{output_path}results/{repo_name_json}/"
     if not os.path.exists(result_directory):
