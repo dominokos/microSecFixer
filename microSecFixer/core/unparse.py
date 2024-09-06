@@ -5,7 +5,7 @@ from microCertiSec.core.edge import CEdge
 from microCertiSec.core.model import CModel
 from microSecFixer.core.stereotypes import ExternalEntity, without_traceability
 
-def unparse_model(model: CModel) -> str:
+def unparse_model(model: CModel, output_path: str) -> str:
     """
     Unparses the model into a JSON representation and writes to a file.
 
@@ -30,7 +30,7 @@ def unparse_model(model: CModel) -> str:
         "information_flows": information_flows
     }
     
-    output_path = f"/output/models/{model.name}"
+    output_path = f"{output_path}models/{model.name}"
     relative_output_path = f".{output_path}"
     os.makedirs(os.path.dirname(relative_output_path), exist_ok=True)
     with open(relative_output_path, 'w') as file:

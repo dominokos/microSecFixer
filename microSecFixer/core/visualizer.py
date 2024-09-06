@@ -8,10 +8,10 @@ from microSecFixer.core import convert_model
 """Renders PlantUML as svg
 """
 
-def visualize(dfd_path: str, out_location: str):
+def visualize(dfd_path: str, out_type: str, out_path: str):
     model_name = get_model_name(dfd_path)
     full_path = get_full_path(dfd_path)
-    plantuml_filepath = gen_plantuml(full_path, model_name, out_location)
+    plantuml_filepath = gen_plantuml(full_path, model_name, out_type, out_path)
     output_svg(plantuml_filepath)
     output_png(plantuml_filepath)
 
@@ -24,8 +24,8 @@ def get_full_path(dfd_path: str) -> str:
     current_wd = os.getcwd()
     return current_wd + dfd_path
 
-def gen_plantuml(full_path: str, model_name: str, out_location: str) -> str:
-    plantuml_directory = f"./output/plantuml/{model_name}/{out_location}/"
+def gen_plantuml(full_path: str, model_name: str, out_type: str, out_path: str) -> str:
+    plantuml_directory = f"{out_path}plantuml/{model_name}/{out_type}/"
     os.makedirs(plantuml_directory, exist_ok=True)
     plantuml_filepath = f"{plantuml_directory}{model_name}.txt"
     convert_model.main(["-op", plantuml_filepath, full_path, "txt"])
