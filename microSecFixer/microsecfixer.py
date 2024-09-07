@@ -87,7 +87,7 @@ def main(args):
     start_time = now.strftime("%H:%M:%S")
     
     logger.write_log_message("*** New execution ***", "info")
-    print("\nStarted", start_time)
+    print("Started", start_time)
 
     arguments = arg_parser.parse_args(args)
     
