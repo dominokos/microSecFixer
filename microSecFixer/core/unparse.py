@@ -31,9 +31,9 @@ def unparse_model(model: CModel, output_path: str) -> str:
     }
     
     output_path = f"{output_path}models/{model.name}"
-    relative_output_path = f".{output_path}"
-    os.makedirs(os.path.dirname(relative_output_path), exist_ok=True)
-    with open(relative_output_path, 'w') as file:
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as file:
         json.dump(new_dfd, file)
     return output_path
 

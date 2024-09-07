@@ -10,7 +10,7 @@ log_formatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s",
                                   datefmt="%Y-%m-%d %H:%M:%S")  # your logging format
 LOG_PATH = "./output/logs/"
 os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
-file_name = LOG_PATH + date.today().strftime("%b-%d-%Y") + "--" + datetime.now().strftime("%H-%M-%S") + ".log"
+file_name = LOG_PATH + "microSecFixer.log"
 
 log_handler = RotatingFileHandler(file_name, mode="a", maxBytes=1024, backupCount=10, encoding="utf-8")
 log_handler.setFormatter(log_formatter)

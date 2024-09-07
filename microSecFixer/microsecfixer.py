@@ -10,7 +10,7 @@ from datetime import datetime
 
 from microCertiSec.core.model import CModel
 import microSecFixer.core.visualizer as visualizer
-from microSecFixer.core.evaluation import find_all_violations, find_violation
+from microSecFixer.core.evaluation import find_next_violation, find_violation
 import microSecFixer.core.logger as logger
 from microSecFixer.core.rule_map import RuleMap
 import microSecFixer.tmp.tmp as temp
@@ -20,16 +20,10 @@ from microCertiSec.microCertiSec import model_api
 arg_parser = argparse.ArgumentParser(prog = "microSecFixer",
                                     description = "Takes a architectural model in JSON format and generates an \"ideal\" model which fulfills the rules introduced in microCertiSec.")
 
-arg_parser.add_argument("rule_to_check",
-                        metavar = "rule-to-check",
+arg_parser.add_argument("-rtc",
+                        metavar = "--rule-to-check",
                         type = int,
                         help = "The rule that should be checked. Options are: 1 through 25 (Check microSecFixer/docs/rules_ordered.md for what each rule is)")
-
-arg_parser.add_argument("-op",
-                        metavar = "--output-path",
-                        type = str,
-                        help = "Path where output file should be stored.")
-
 
 def get_model(model_path: str) -> CModel:
     return model_api(model_path, None)
@@ -49,38 +43,35 @@ def insertConfigIntoTemp(config: ConfigParser):
 def fix_one(dfd_path: str, rule_to_check: int,  output_path: str):
     visualize_dfd(dfd_path, "original", output_path)
 
-    result_dir, verdict = find_violation(dfd_path, rule_to_check, output_path)
+    rule, verdict = find_violation(dfd_path, rule_to_check, output_path)
     if verdict:
         print("The rule is already adhered to by the provided model.")
         visualize_dfd(dfd_path, "ideal", output_path)
         return
     
-    results = os.listdir(result_dir)
     fixing_map = RuleMap.get_fixes()
-    model_path = dfd_path
-    rule = results[0][:3]
-    dfd_path = fixing_map[rule](get_model(model_path), output_path)
-
-    result_dir, verdict = find_violation(dfd_path, rule_to_check, output_path)
+    dfd_path = fixing_map[rule](get_model(dfd_path), output_path)
+    
+    visualize_dfd(dfd_path, "ideal", output_path)
+    rule, verdict = find_violation(dfd_path, rule_to_check, output_path)
     if not verdict:
-        print("Something went horribly wrong.")
-        return
+        raise Exception("Something went wrong. We couldn't fix your model.")
 
 def fix_all(dfd_path: str, output_path: str):
     visualize_dfd(dfd_path, "original", output_path)
 
-    # calling microCertiSec to evaluate the security of the model and saving the results under output/results/{model name}
-    result_dir = find_all_violations(dfd_path, output_path)
-    results = os.listdir(result_dir)
+    # calling microCertiSec to evaluate the security of the model and saving the results under ./output/results/{model name}
+    rule_to_fix = find_next_violation(dfd_path, output_path)
     fixing_map = RuleMap.get_fixes()
-    while(results):
-        model_path = dfd_path
-        rule = results[0][:3]
-        dfd_path = fixing_map[rule](get_model(model_path), output_path)
-        result_dir = find_all_violations(dfd_path, output_path)
-        results = os.listdir(result_dir)
+    while(rule_to_fix != None):
+        fixed_until = int(rule_to_fix[1:])
+        dfd_path = fixing_map[rule_to_fix](get_model(dfd_path), output_path)
+        rule_to_fix = find_next_violation(dfd_path, output_path, fixed_until)
 
     visualize_dfd(dfd_path, "ideal", output_path) 
+    final_check = find_next_violation(dfd_path, output_path)
+    if final_check != None:
+        raise Exception("Something went wrong. We couldn't fix your model.")
 
 def main(args):
     now = datetime.now()
@@ -89,23 +80,19 @@ def main(args):
     logger.write_log_message("*** New execution ***", "info")
     print("Started", start_time)
 
-    arguments = arg_parser.parse_args(args)
-    
+    output_path = "./output/"
+
     ini_config = ConfigParser()
     ini_config.read('config/config.ini')
     insertConfigIntoTemp(ini_config)
-    dfd_path = temp.tmp_config.get("Repository", "dfd_path")
+    dfd_path = f".{temp.tmp_config.get("Repository", "dfd_path")}"
 
-    if arguments.op:
-        output_path = arguments.op
-    else:
-        output_path = "./output/"
+    arguments = arg_parser.parse_args(args)
 
-    if arguments.rule_to_check:
-        fix_one(dfd_path, arguments.rule_to_check, output_path)
+    if arguments.rtc:
+        fix_one(dfd_path, arguments.rtc, output_path)
     else:
         fix_all(dfd_path, output_path)
-    
 
     now = datetime.now()
     end_time = now.strftime("%H:%M:%S")
