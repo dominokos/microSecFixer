@@ -1,8 +1,8 @@
-## microSecFixer
+## MicroSecFixer
 
-This is microSecFixer, a tool used to automatically fix security rule violations on the architectural model of a Microservice application.
+This is MicroSecFixer, a tool used to automatically fix security rule violations on the architectural model of a Microservice application.
 
-microSecFixer builds on top of the groundwork laid by Simon Schneider. It evaluates using microCertiSec, whether a given Dataflow Diagram - representing an application with a Microservice architecture - violates any of a set of 25 security rules. The security rules are based on best practice recommendations by OWASP, NIST, and CSA. At the core, it evaluates what parts of the Dataflow model are faulty and automatically corrects said flaws.
+MicroSecFixer builds on top of the groundwork laid by Simon Schneider. It evaluates using microCertiSec, whether a given Dataflow Diagram - representing an application with a Microservice architecture - violates any of a set of 25 security rules. The security rules are based on best practice recommendations by OWASP, NIST, and CSA. At the core, it evaluates what parts of the Dataflow model are faulty and automatically corrects said flaws.
 
 ### 1. Installation
 
