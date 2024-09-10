@@ -26,7 +26,7 @@ arg_parser.add_argument("-rtc",
                         help = "The rule that should be checked. Options are: 1 through 25 (Check microSecFixer/docs/rules_ordered.md for what each rule is)")
 
 arg_parser.add_argument("-so",
-                        metavar = "--store-original",
+                        action = "store_true",
                         help = "Store the results of the original analysis")
 
 

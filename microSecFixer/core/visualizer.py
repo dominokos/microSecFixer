@@ -16,7 +16,7 @@ def visualize(dfd_path: str, out_type: str, out_path: str):
     output_png(plantuml_filepath)
 
 def get_model_name(dfd_path: str) -> str:
-    no_file_ending = dfd_path.split(".")[0]
+    no_file_ending = dfd_path.split(".json")[0]
     model_name = no_file_ending.partition("models/")[2]
     return model_name
 
