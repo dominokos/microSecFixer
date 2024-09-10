@@ -10,7 +10,7 @@ from datetime import datetime
 
 from microCertiSec.core.model import CModel
 import microSecFixer.core.visualizer as visualizer
-from microSecFixer.core.evaluation import find_next_violation, find_violation
+from microSecFixer.core.evaluation import find_next_violation, find_violation, find_all_violations
 import microSecFixer.core.logger as logger
 from microSecFixer.core.rule_map import RuleMap
 import microSecFixer.tmp.tmp as temp
@@ -24,6 +24,11 @@ arg_parser.add_argument("-rtc",
                         metavar = "--rule-to-check",
                         type = int,
                         help = "The rule that should be checked. Options are: 1 through 25 (Check microSecFixer/docs/rules_ordered.md for what each rule is)")
+
+arg_parser.add_argument("-so",
+                        metavar = "--store-original",
+                        help = "Store the results of the original analysis")
+
 
 def get_model(model_path: str) -> CModel:
     return model_api(model_path, None)
@@ -88,6 +93,9 @@ def main(args):
     dfd_path = f".{temp.tmp_config.get("Repository", "dfd_path")}"
 
     arguments = arg_parser.parse_args(args)
+
+    if arguments.so:
+        find_all_violations(dfd_path, output_path)
 
     if arguments.rtc:
         fix_one(dfd_path, arguments.rtc, output_path)

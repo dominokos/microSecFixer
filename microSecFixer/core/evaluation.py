@@ -11,17 +11,34 @@ def clear_result_dir(result_dir: str):
     for f in filelist:
         os.remove(os.path.join(result_dir, f))
 
+def find_all_violations(dfd_path: str, output_path: str):
+    model_file = dfd_path.split("/")[-1:][0]
+    rule_map = RuleMap.get_rules()
+    result_directory = f"{output_path}results/{model_file}/original/"
+    if not os.path.exists(result_directory):
+        os.makedirs(result_directory)
+    clear_result_dir(result_directory)
+
+    for i in range(1, 26):
+        result = evaluate_dfd(dfd_path, rule_map[i])
+        is_i_single_digit = i // 10 < 1
+        if(is_i_single_digit):
+            with open(f"{result_directory}r0{i}{model_file}", "w") as output_file:
+                json.dump(result.property_check_evidence_json, output_file)
+        else:
+            with open(f"{result_directory}r{i}{model_file}", "w") as output_file:
+                json.dump(result.property_check_evidence_json, output_file)
+
 def find_next_violation(dfd_path: str, output_path: str, lower_bound: int = 1) -> str:
     model_file = dfd_path.split("/")[-1:][0]
-    traceability_path = dfd_path.replace(".json", "_traceability.json")
     rule_map = RuleMap.get_rules()
-    result_directory = f"{output_path}results/{model_file}/"
+    result_directory = f"{output_path}results/{model_file}/ideal/"
     if not os.path.exists(result_directory):
         os.makedirs(result_directory)
     clear_result_dir(result_directory)
 
     for i in range(lower_bound, 26):
-        result = evaluate_dfd(dfd_path, rule_map[i], traceability_path)
+        result = evaluate_dfd(dfd_path, rule_map[i])
         # Skip if the verdict is positive (rule is adhered to)
         verdict = None
         for rule in result.property_check_evidence_json.values():
@@ -47,7 +64,7 @@ def find_next_violation(dfd_path: str, output_path: str, lower_bound: int = 1) -
 def find_violation(dfd_path: str, rule_to_check: str, output_path: str) -> tuple[str, bool]:
     model_file = dfd_path.split("/")[-1:][0]
     rule_map = RuleMap.get_rules()
-    result_directory = f"{output_path}results/{model_file}/"
+    result_directory = f"{output_path}results/{model_file}/ideal/"
     if not os.path.exists(result_directory):
         os.makedirs(result_directory)
     clear_result_dir(result_directory)
