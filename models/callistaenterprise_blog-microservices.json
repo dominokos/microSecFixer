@@ -76,6 +76,7 @@
                 "infrastructural",
                 "authorization_server",
                 "authentication_server",
+                "web_application",
                 "resource_server",
                 "local_logging",
                 "plaintext_credentials",

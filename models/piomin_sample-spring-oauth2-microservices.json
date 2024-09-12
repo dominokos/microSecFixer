@@ -38,6 +38,8 @@
             "stereotypes": [
                 "authorization_server",
                 "authentication_server",
+                "logging_server",
+                "metrics_server",
                 "encryption",
                 "infrastructural",
                 "resource_server",

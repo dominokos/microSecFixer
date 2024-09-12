@@ -30,6 +30,7 @@
                 "infrastructural",
                 "encryption",
                 "tokenstore",
+                "search_engine",
                 "plaintext_credentials",
                 "resource_server",
                 "authorization_scope_all_requests",

@@ -16,8 +16,8 @@ def r01_authorization_only(model: CModel, output_path: str) -> str:
         node_is_service = AllServices.get_stereotypes()[0]
         service_is_authorization_server = AuthService.get_stereotypes()[0] in without_traceability(node.stereotypes)
         if node_is_service and service_is_authorization_server:
-            intersection = list(set(with_traceability(BusinessFunctionality.get_stereotypes())) & set(node.stereotypes))
-            node.stereotypes = node.stereotypes - intersection
+            intersection = set(with_traceability(BusinessFunctionality.get_stereotypes())) & set(node.stereotypes)
+            node.stereotypes = list(set(node.stereotypes) - intersection)
     return unparse_model(model, output_path)
 
 def r02_authentication_only(model: CModel, output_path: str) -> str:
@@ -29,8 +29,8 @@ def r02_authentication_only(model: CModel, output_path: str) -> str:
         node_is_service = AllServices.get_stereotypes()[0]
         service_is_authentication_server = AuthService.get_stereotypes()[1] in without_traceability(node.stereotypes)
         if node_is_service and service_is_authentication_server:
-            intersection = list(set(with_traceability(BusinessFunctionality.get_stereotypes())) & set(node.stereotypes))
-            node.stereotypes = node.stereotypes - intersection
+            intersection = set(with_traceability(BusinessFunctionality.get_stereotypes())) & set(node.stereotypes)
+            node.stereotypes = list(set(node.stereotypes) - intersection)
     unparse_model(model, output_path)
 
 def r03_logging_system_disconnect(model: CModel, output_path: str) -> str:

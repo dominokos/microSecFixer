@@ -54,6 +54,7 @@
                 "resource_server",
                 "authentication_scope_all_requests",
                 "plaintext_credentials",
+                "gateway",
                 "authorization",
                 "authentication"
             ],

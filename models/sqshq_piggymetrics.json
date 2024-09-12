@@ -70,6 +70,7 @@
                 "pre_authorized_endpoints",
                 "infrastructural",
                 "token_server",
+                "configuration_server",
                 "encryption",
                 "local_logging",
                 "resource_server",
