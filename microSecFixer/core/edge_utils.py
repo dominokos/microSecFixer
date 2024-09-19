@@ -13,7 +13,7 @@ def remove_edge(sender: CNode, receiver: CNode, edges: set[CEdge]) -> set[CEdge]
             edges.remove(edge)
             return edges
 
-def remove_edges_in_both(edges: set[CNode], edges_from_nodes: set[CNode], edges_to_nodes: set[CNode]):
+def remove_edges_between(edges: set[CNode], edges_from_nodes: set[CNode], edges_to_nodes: set[CNode]):
     to_remove = edges_from_nodes & edges_to_nodes
     edges_from_nodes.difference_update(to_remove)
     edges_to_nodes.difference_update(to_remove)
@@ -62,7 +62,7 @@ def find_all_edges_with_receiver(receiver:CNode, edges: set[CEdge]) -> set[CEdge
             result_edges.add(edge)
     return result_edges
 
-def handle_edges(edges: set[CNode], edges_from_nodes: set[CNode], edges_to_nodes: set[CNode], merged_node: CNode):
+def fix_dangling_edges(edges: set[CNode], edges_from_nodes: set[CNode], edges_to_nodes: set[CNode], merged_node: CNode):
     edges_switch_receiver(edges_to_nodes, merged_node)
     edges_switch_sender(edges_from_nodes, merged_node)
     merge_duplicate_edges(edges)
