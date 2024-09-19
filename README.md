@@ -14,7 +14,7 @@ MicroSecFixer builds on top of the groundwork laid by Simon Schneider. It evalua
 
 #### Setup
 1. Make sure to clone the repository using git into your local working directory.
-2. Run `pip install -r requirements.txt` to install all required libraries.
+2. Run `pip install .` to install all required libraries.
 3. The path to the application that is to be analyzed has to be written in the `config/config.ini` file.
     - A number of repositories is already given in that file, for all of which manually created DFDs exist [here](https://github.com/tuhh-softsec/microSecEnD). The corresponding path only needs to be uncommented for analysis (all others have to be commented out with a ";").
 
