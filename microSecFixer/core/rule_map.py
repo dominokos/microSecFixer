@@ -42,7 +42,7 @@ class RuleMap:
         "r09": fixer.r09_single_secret_store,
         "r10": fixer.r10_monitoring_dashboard,
         "r11": fixer.r11_message_broker,
-        "r12": fixer.r12_single_login_attempt_limiter,
+        "r12": fixer.r12_limit_login_attempts,
         "r13": fixer.r13_entrypoint_authorization,
         "r14": fixer.r14_entrypoint_authentication,
         "r15": fixer.r15_entrypoint_circuit_breaker,
