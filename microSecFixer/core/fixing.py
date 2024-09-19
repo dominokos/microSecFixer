@@ -374,10 +374,7 @@ def r20_logger_to_message_broker(model: CModel, output_path: str) -> str:
     if not message_broker:
         r11_message_broker(model, output_path)
         message_broker = find_node_with_stereotype(nodes, MessageBroker.get_stereotypes()[0])
-    logging_server = find_node_with_stereotype(nodes, LoggingServer.get_stereotypes()[0])
-    if not logging_server:
-        r07_single_log_subsystem(model, output_path)
-        logging_server = find_node_with_stereotype(nodes, LoggingServer.get_stereotypes()[0])
+
     for node in nodes:
         node_is_service = AllServices.get_stereotypes()[0] in without_traceability(node.stereotypes)
         service_does_logging = AllServices.get_stereotypes()[1] in without_traceability(node.stereotypes)
@@ -386,10 +383,6 @@ def r20_logger_to_message_broker(model: CModel, output_path: str) -> str:
             edge: CEdge = create_edge(node, message_broker)
             edges.add(edge)
             node.connected_nodes.append(message_broker)
-    if not node_is_connected_to(message_broker, logging_server):
-        logging_edge = create_edge(message_broker, logging_server)
-        message_broker.connected_nodes.append(logging_server)
-        edges.add(logging_edge)
     return unparse_model(model, output_path)
             
 
