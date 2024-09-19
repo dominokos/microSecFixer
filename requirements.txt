@@ -1,6 +1,5 @@
 httplib2==0.22.0
 microCertiSec @ git+https://github.com/dominokos/microCertiSec.git
-microSecFixer @ git+https://github.com/dominokos/microSecFixer.git
 plantuml==0.3.0
 prettytable==0.7.2
 pyparsing==3.1.4
