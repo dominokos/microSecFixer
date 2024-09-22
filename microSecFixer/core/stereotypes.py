@@ -4,8 +4,7 @@ from microCertiSec.core.node import CNode
 class AllServices:
     nodes_stereotypes = ["service",
                          "local_logging",
-                         "log_sanitization",
-                         "internal"]
+                         "log_sanitization"]
     @staticmethod
     def get_stereotypes():
         return AllServices.nodes_stereotypes
@@ -16,7 +15,8 @@ class AllEntrypoints:
                                "authentication",
                                "circuit_breaker",
                                "load_balancer",
-                               "login_attempts_regulation"]
+                               "login_attempts_regulation",
+                               "infrastructural"]
     @staticmethod
     def get_stereotypes():
         return AllEntrypoints.entrypoints_stereotypes
@@ -27,7 +27,8 @@ class AllEntrypoints:
 
 class AllServiceRegistries:
     service_discovery_stereotypes = ["service_discovery",
-                                     "validate_registration"]
+                                     "validate_registration",
+                                     "infrastructural"]
     @staticmethod
     def get_stereotypes():
         return AllServiceRegistries.service_discovery_stereotypes
@@ -37,7 +38,8 @@ class AllServiceRegistries:
         return merge_stereotypes(LoggingServer, MessageBroker, MonitoringDashboard, AuthService, ExternalEntity, Database)
     
 class LoggingServer:
-    logging_server_stereotypes = ["logging_server"]
+    logging_server_stereotypes = ["logging_server",
+                                  "infrastructural"]
     @staticmethod
     def get_stereotypes():
         return LoggingServer.logging_server_stereotypes
@@ -47,7 +49,8 @@ class LoggingServer:
         return merge_stereotypes(AllEntrypoints, MessageBroker, MonitoringDashboard, AuthService, ExternalEntity, Database)
 
 class MessageBroker:
-    message_broker_stereotypes = ["message_broker"]
+    message_broker_stereotypes = ["message_broker",
+                                  "infrastructural"]
     @staticmethod
     def get_stereotypes():
         return MessageBroker.message_broker_stereotypes
@@ -57,7 +60,8 @@ class MessageBroker:
         return merge_stereotypes(LoggingServer, AllEntrypoints, MonitoringDashboard, AuthService, ExternalEntity, Database)
 
 class MonitoringDashboard:
-    monitoring_dashboard_stereotypes = ["monitoring_dashboard"]
+    monitoring_dashboard_stereotypes = ["monitoring_dashboard",
+                                        "infrastructural"]
     @staticmethod
     def get_stereotypes():
         return MonitoringDashboard.monitoring_dashboard_stereotypes
@@ -69,7 +73,8 @@ class MonitoringDashboard:
 class AuthService:
     auth_service_stereotypes = ["authorization_server",
                                 "authentication_server",
-                                "secret_manager"]
+                                "secret_manager",
+                                "infrastructural"]
     @staticmethod
     def get_stereotypes():
         return AuthService.auth_service_stereotypes
@@ -102,6 +107,7 @@ class BusinessFunctionality:
     functionality_stereotypes = ["administration_server",
                                 "configuration_server",
                                 "gateway",
+                                "entrypoint",
                                 "message_broker",
                                 "service_discovery",
                                 "search_engine",

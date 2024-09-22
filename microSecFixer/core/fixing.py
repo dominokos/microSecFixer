@@ -33,24 +33,7 @@ def r02_authentication_only(model: CModel, output_path: str) -> str:
             node.stereotypes = list(set(node.stereotypes) - intersection)
     unparse_model(model, output_path)
 
-def r03_logging_system_disconnect(model: CModel, output_path: str) -> str:
-    """
-    No service that performs logging should be connected to a central logging subsystem.
-    """
-    nodes: set[CNode] = model.nodes.nodes
-    edges: set[CEdge] = model.edges.edges
-    logging_servers: list[CNode] = list(find_all_nodes_with_stereotype(nodes, LoggingServer.get_stereotypes()[0]))
-    for node in nodes:
-        node_is_message_broker = MessageBroker.get_stereotypes()[0] in without_traceability(node.stereotypes)
-        if not node_is_message_broker:
-            for con_node in node.connected_nodes:
-                if con_node in logging_servers:
-                    index = logging_servers.index(con_node)
-                    edges = remove_edge(node, logging_servers[index], edges)
-                    node.connected_nodes.remove(con_node)
-    return unparse_model(model, output_path)
-
-def r04_single_entry(model: CModel, output_path: str) -> str:
+def r03_single_entry(model: CModel, output_path: str) -> str:
     """
     There should be a single service as entry point.
     """
@@ -80,7 +63,7 @@ def r04_single_entry(model: CModel, output_path: str) -> str:
     nodes.add(merged_entrypoint)
     return unparse_model(model, output_path)
 
-def r05_single_authorization(model: CModel, output_path: str) -> str:
+def r04_single_authorization(model: CModel, output_path: str) -> str:
     """
     There should be a single authorization service.
     """
@@ -110,7 +93,7 @@ def r05_single_authorization(model: CModel, output_path: str) -> str:
     nodes.add(merged_authorization_server)
     return unparse_model(model, output_path)
 
-def r06_single_authentication(model: CModel, output_path: str) -> str:
+def r05_single_authentication(model: CModel, output_path: str) -> str:
     """
     There should be a single authentication service.
     """
@@ -140,7 +123,7 @@ def r06_single_authentication(model: CModel, output_path: str) -> str:
     nodes.add(merged_authentication_server)
     return unparse_model(model, output_path)
 
-def r07_single_log_subsystem(model: CModel, output_path: str) -> str:
+def r06_single_log_subsystem(model: CModel, output_path: str) -> str:
     """
     There should be a single central logging subsystem.
     """
@@ -171,7 +154,7 @@ def r07_single_log_subsystem(model: CModel, output_path: str) -> str:
     return unparse_model(model, output_path)
 
 
-def r08_single_registry(model: CModel, output_path: str) -> str:
+def r07_single_registry(model: CModel, output_path: str) -> str:
     """
     There should be a single service registry.
     """
@@ -200,7 +183,7 @@ def r08_single_registry(model: CModel, output_path: str) -> str:
     nodes.add(merged_registry)
     return unparse_model(model, output_path)
 
-def r09_single_secret_store(model: CModel, output_path: str) -> str:
+def r08_single_secret_store(model: CModel, output_path: str) -> str:
     """
     There should be a single central secret store.
     """
@@ -213,11 +196,11 @@ def r09_single_secret_store(model: CModel, output_path: str) -> str:
             node.stereotypes.extend(with_traceability(AuthService.get_stereotypes()[2]))
             auth_found = True
     if not auth_found:
-        return r05_single_authorization(model, output_path)
+        return r04_single_authorization(model, output_path)
     return unparse_model(model, output_path)
     
 
-def r10_monitoring_dashboard(model: CModel, output_path: str) -> str:
+def r09_monitoring_dashboard(model: CModel, output_path: str) -> str:
     """
     There should be a monitoring dashboard.
     """
@@ -226,7 +209,7 @@ def r10_monitoring_dashboard(model: CModel, output_path: str) -> str:
     nodes.add(CNode(MonitoringDashboard.get_stereotypes()[0], with_traceability(merge_stereotypes(MonitoringDashboard, AllServices)), node_traceability))
     return unparse_model(model, output_path)
 
-def r11_message_broker(model: CModel, output_path: str) -> str:
+def r10_message_broker(model: CModel, output_path: str) -> str:
     """
     There should be a message broker.
     """
@@ -235,7 +218,7 @@ def r11_message_broker(model: CModel, output_path: str) -> str:
     nodes.add(CNode(MessageBroker.get_stereotypes()[0], with_traceability(merge_stereotypes(MessageBroker, AllServices)), node_traceability))
     return unparse_model(model, output_path)
 
-def r12_limit_login_attempts(model: CModel, output_path: str) -> str:
+def r11_limit_login_attempts(model: CModel, output_path: str) -> str:
     """
     There should be a service limiting the number of login attempts.
     """
@@ -249,10 +232,10 @@ def r12_limit_login_attempts(model: CModel, output_path: str) -> str:
                 node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[5]))
             entrypoint_found = True
     if not entrypoint_found:
-        return r04_single_entry(model, output_path)
+        return r03_single_entry(model, output_path)
     return unparse_model(model, output_path)
 
-def r13_entrypoint_authorization(model: CModel, output_path: str) -> str:
+def r12_entrypoint_authorization(model: CModel, output_path: str) -> str:
     """
     All entry points should perform authorization.
     """
@@ -266,10 +249,10 @@ def r13_entrypoint_authorization(model: CModel, output_path: str) -> str:
                 node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[1]))
             entrypoint_found = True
     if not entrypoint_found:
-        return r04_single_entry(model, output_path)
+        return r03_single_entry(model, output_path)
     return unparse_model(model, output_path)
 
-def r14_entrypoint_authentication(model: CModel, output_path: str) -> str:
+def r13_entrypoint_authentication(model: CModel, output_path: str) -> str:
     """
     All entry points should perform authentication.
     """
@@ -284,10 +267,10 @@ def r14_entrypoint_authentication(model: CModel, output_path: str) -> str:
                 node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[2]))
             entrypoint_found = True
     if not entrypoint_found:
-        return r04_single_entry(model, output_path)
+        return r03_single_entry(model, output_path)
     return unparse_model(model, output_path)
 
-def r15_entrypoint_circuit_breaker(model: CModel, output_path: str) -> str:
+def r14_entrypoint_circuit_breaker(model: CModel, output_path: str) -> str:
     """
     All entry points should have a circuit breaker.
     """
@@ -301,10 +284,10 @@ def r15_entrypoint_circuit_breaker(model: CModel, output_path: str) -> str:
                 node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[3]))
             entrypoint_found = True
     if not entrypoint_found:
-        return r04_single_entry(model, output_path)
+        return r03_single_entry(model, output_path)
     return unparse_model(model, output_path)
 
-def r16_entrypoint_load_balancer(model: CModel, output_path: str) -> str:
+def r15_entrypoint_load_balancer(model: CModel, output_path: str) -> str:
     """
     All entry points should have a load balancer.
     """
@@ -319,10 +302,10 @@ def r16_entrypoint_load_balancer(model: CModel, output_path: str) -> str:
                 node.stereotypes.extend(with_traceability(AllEntrypoints.get_stereotypes()[4]))
             entrypoint_found = True
     if not entrypoint_found:
-        return r04_single_entry(model, output_path)
+        return r03_single_entry(model, output_path)
     return unparse_model(model, output_path)
 
-def r17_services_logging(model: CModel, output_path: str) -> str:
+def r16_services_logging(model: CModel, output_path: str) -> str:
     """
     All services should perform logging.
     """
@@ -334,7 +317,7 @@ def r17_services_logging(model: CModel, output_path: str) -> str:
             node.stereotypes.extend(with_traceability(AllServices.get_stereotypes()[1]))
     return unparse_model(model, output_path)
 
-def r18_services_sanitize_logs(model: CModel, output_path: str) -> str:
+def r17_services_sanitize_logs(model: CModel, output_path: str) -> str:
     """
     All services should sanitize logs.
     """
@@ -346,7 +329,7 @@ def r18_services_sanitize_logs(model: CModel, output_path: str) -> str:
             node.stereotypes.extend(with_traceability(AllServices.get_stereotypes()[2]))
     return unparse_model(model, output_path)
 
-def r19_registry_validate(model: CModel, output_path: str) -> str:
+def r18_registry_validate(model: CModel, output_path: str) -> str:
     """
     All service registries should have validation checks for incoming requests.
     """
@@ -364,7 +347,7 @@ def r19_registry_validate(model: CModel, output_path: str) -> str:
         nodes.add(CNode(AllServiceRegistries.get_stereotypes()[0], with_traceability(merge_stereotypes(AllServiceRegistries, AllServices)), node_traceability))
     return unparse_model(model, output_path)
 
-def r20_logger_to_message_broker(model: CModel, output_path: str) -> str:
+def r19_logger_to_message_broker(model: CModel, output_path: str) -> str:
     """
     All services that perform logging should be connected to a message broker.
     """
@@ -372,7 +355,7 @@ def r20_logger_to_message_broker(model: CModel, output_path: str) -> str:
     edges: set[CEdge] = model.edges.edges
     message_broker = find_node_with_stereotype(nodes, MessageBroker.get_stereotypes()[0])
     if not message_broker:
-        r11_message_broker(model, output_path)
+        r10_message_broker(model, output_path)
         message_broker = find_node_with_stereotype(nodes, MessageBroker.get_stereotypes()[0])
 
     for node in nodes:
@@ -386,7 +369,7 @@ def r20_logger_to_message_broker(model: CModel, output_path: str) -> str:
     return unparse_model(model, output_path)
             
 
-def r21_services_to_monitoring_dashboard(model: CModel, output_path: str) -> str:
+def r20_services_to_monitoring_dashboard(model: CModel, output_path: str) -> str:
     """
     All services should be connected to a monitoring dashboard.
     """
@@ -394,8 +377,9 @@ def r21_services_to_monitoring_dashboard(model: CModel, output_path: str) -> str
     edges: set[CEdge] = model.edges.edges
     monitoring_dashboard = find_node_with_stereotype(nodes, MonitoringDashboard.get_stereotypes()[0])
     if not monitoring_dashboard:
-        r10_monitoring_dashboard(model, output_path)
+        r09_monitoring_dashboard(model, output_path)
         monitoring_dashboard = find_node_with_stereotype(nodes, MonitoringDashboard.get_stereotypes()[0])
+
     for node in nodes:
         node_is_service = AllServices.get_stereotypes()[0] in without_traceability(node.stereotypes)
         service_is_monitoring_dashboard = node == monitoring_dashboard
@@ -405,31 +389,31 @@ def r21_services_to_monitoring_dashboard(model: CModel, output_path: str) -> str
             node.connected_nodes.append(monitoring_dashboard)
     return unparse_model(model, output_path)
 
-def r22_connections_authorized(model: CModel, output_path: str) -> str:
+def r21_connections_authorized(model: CModel, output_path: str) -> str:
     """
     All connections between services should be authorized.
     """
     edges: set[CEdge] = model.edges.edges
     for edge in edges:
         edge_is_authorized = AllConnections.get_stereotypes()[0] in without_traceability(edge.stereotypes)
-        sender_and_receiver_internal = AllServices.get_stereotypes()[3] in without_traceability(edge.sender.stereotypes) and AllServices.get_stereotypes()[3] in without_traceability(edge.receiver.stereotypes)
-        if sender_and_receiver_internal and not edge_is_authorized:
+        sender_and_receiver_service = AllServices.get_stereotypes()[0] in without_traceability(edge.sender.stereotypes) and AllServices.get_stereotypes()[0] in without_traceability(edge.receiver.stereotypes)
+        if sender_and_receiver_service and not edge_is_authorized:
             edge.stereotypes.extend(with_traceability(AllConnections.get_stereotypes()[0]))
     return unparse_model(model, output_path)
 
-def r23_connections_authenticated(model: CModel, output_path: str) -> str:
+def r22_connections_authenticated(model: CModel, output_path: str) -> str:
     """
     All connections between services should be authenticated.
     """
     edges: set[CEdge] = model.edges.edges
     for edge in edges:
         edge_is_authenticated = AllConnections.get_stereotypes()[1] in without_traceability(edge.stereotypes)
-        sender_and_receiver_internal = AllServices.get_stereotypes()[3] in without_traceability(edge.sender.stereotypes) and AllServices.get_stereotypes()[3] in without_traceability(edge.receiver.stereotypes)
-        if sender_and_receiver_internal and not edge_is_authenticated:
+        sender_and_receiver_service = AllServices.get_stereotypes()[0] in without_traceability(edge.sender.stereotypes) and AllServices.get_stereotypes()[0] in without_traceability(edge.receiver.stereotypes)
+        if sender_and_receiver_service and not edge_is_authenticated:
             edge.stereotypes.extend(with_traceability(AllConnections.get_stereotypes()[1]))
     return unparse_model(model, output_path)
 
-def r24_outer_connections_encrypted(model: CModel, output_path: str) -> str:
+def r23_outer_connections_encrypted(model: CModel, output_path: str) -> str:
     """
     All connections between a service and an external entity should be encrypted.
     """
@@ -440,7 +424,7 @@ def r24_outer_connections_encrypted(model: CModel, output_path: str) -> str:
             edge.stereotypes.extend(with_traceability(AllConnections.get_stereotypes()[2]))
     return unparse_model(model, output_path)
 
-def r25_inner_connections_encrypted(model: CModel, output_path: str) -> str:
+def r24_inner_connections_encrypted(model: CModel, output_path: str) -> str:
     """
     All connections between two services should be encrypted.
     """
@@ -449,4 +433,23 @@ def r25_inner_connections_encrypted(model: CModel, output_path: str) -> str:
         edge_is_encrypted = AllConnections.get_stereotypes()[2] in without_traceability(edge.stereotypes)
         if not edge_is_encrypted:
             edge.stereotypes.extend(with_traceability(AllConnections.get_stereotypes()[2]))
+    return unparse_model(model, output_path)
+
+def r25_logging_system_disconnect(model: CModel, output_path: str) -> str:
+    """
+    No service that performs logging should be connected to a central logging subsystem.
+    """
+    nodes: set[CNode] = model.nodes.nodes
+    edges: set[CEdge] = model.edges.edges
+    logging_servers: list[CNode] = list(find_all_nodes_with_stereotype(nodes, LoggingServer.get_stereotypes()[0]))
+
+    for node in nodes:
+        node_is_service = AllServices.get_stereotypes()[0] in without_traceability(node.stereotypes)
+        node_has_local_logging = AllServices.get_stereotypes()[1] in without_traceability(node.stereotypes)
+        if node_is_service and node_has_local_logging:
+            for con_node in node.connected_nodes:
+                if con_node in logging_servers:
+                    index = logging_servers.index(con_node)
+                    edges = remove_edge(node, logging_servers[index], edges)
+                    node.connected_nodes.remove(con_node)
     return unparse_model(model, output_path)
