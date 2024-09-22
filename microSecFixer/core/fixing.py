@@ -31,7 +31,7 @@ def r02_authentication_only(model: CModel, output_path: str) -> str:
         if node_is_service and service_is_authentication_server:
             intersection = set(with_traceability(BusinessFunctionality.get_stereotypes())) & set(node.stereotypes)
             node.stereotypes = list(set(node.stereotypes) - intersection)
-    unparse_model(model, output_path)
+    return unparse_model(model, output_path)
 
 def r03_single_entry(model: CModel, output_path: str) -> str:
     """
