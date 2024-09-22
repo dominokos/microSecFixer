@@ -1,5 +1,3 @@
-from microCertiSec.core.node import CNode
-
 # Node-specific stereotypes
 class AllServices:
     nodes_stereotypes = ["service",

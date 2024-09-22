@@ -4,7 +4,6 @@
 # Contact: dominik.jacob@tuhh.de
 
 import argparse
-import os
 from configparser import ConfigParser
 from datetime import datetime
 
