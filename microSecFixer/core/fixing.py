@@ -343,8 +343,7 @@ def r18_registry_validate(model: CModel, output_path: str) -> str:
                 node.stereotypes.extend(with_traceability(AllServiceRegistries.get_stereotypes()[1]))
             registry_found = True
     if not registry_found:
-        node_traceability = "traceability"
-        nodes.add(CNode(AllServiceRegistries.get_stereotypes()[0], with_traceability(merge_stereotypes(AllServiceRegistries, AllServices)), node_traceability))
+        r07_single_registry(model, output_path)
     return unparse_model(model, output_path)
 
 def r19_logger_to_message_broker(model: CModel, output_path: str) -> str:
