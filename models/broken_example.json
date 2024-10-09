@@ -5,7 +5,6 @@
             "stereotypes": [
                 "web_server",
                 "infrastructural",
-                "logging_server",
                 "entrypoint"
             ],
             "tagged_values": {
@@ -34,7 +33,17 @@
             "name": "logging_service",
             "stereotypes": [
                 "infrastructural",
-                "logging_server"
+                "logging_server",
+                "service_discovery"
+            ],
+            "tagged_values": {
+            }
+        },
+        {
+            "name": "service_registry",
+            "stereotypes": [
+                "infrastructural",
+                "service_discovery"
             ],
             "tagged_values": {
             }

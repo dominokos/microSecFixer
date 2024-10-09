@@ -1,7 +1,7 @@
 from microCertiSec.core.node import CNode
 from microCertiSec.core.edge import CEdge
 from microCertiSec.core.model import CModel
-from microSecFixer.core.stereotypes import merge_stereotypes, collect_distinct_stereotypes, remove_forbidden_stereotypes, without_traceability, with_traceability, BusinessFunctionality, LoggingServer, AllConnections, AllEntrypoints, AllServices, AllServiceRegistries, AuthService, MessageBroker, MonitoringDashboard
+from microSecFixer.core.stereotypes import merge_stereotypes, merge_tagged_values, collect_distinct_stereotypes, remove_forbidden_stereotypes, without_traceability, with_traceability, BusinessFunctionality, LoggingServer, AllConnections, AllEntrypoints, AllServices, AllServiceRegistries, AuthService, MessageBroker, MonitoringDashboard
 from microSecFixer.core.unparse import unparse_model
 from microSecFixer.core.edge_utils import create_edge, fix_dangling_edges, remove_edge, remove_edges_between, find_all_edges_with_receiver, find_all_edges_with_sender
 from microSecFixer.core.node_utils import find_all_nodes_with_stereotype, find_node_with_stereotype, node_is_connected_to
@@ -48,7 +48,7 @@ def r03_single_entry(model: CModel, output_path: str) -> str:
     if entrypoints:
         for entrypoint in entrypoints:
             distinct_stereotypes.update(collect_distinct_stereotypes(entrypoint.stereotypes, merge_stereotypes(AllEntrypoints, AllServices)))
-            tagged_values.update(entrypoint.tagged_values)
+            merge_tagged_values(tagged_values, entrypoint.tagged_values)
             edges_from_entrypoints.update(find_all_edges_with_sender(entrypoint, edges))
             edges_to_entrypoints.update(find_all_edges_with_receiver(entrypoint, edges))
             nodes.remove(entrypoint)
@@ -78,7 +78,7 @@ def r04_single_authorization(model: CModel, output_path: str) -> str:
     if authorization_servers:
         for auth in authorization_servers:
             distinct_stereotypes.update(collect_distinct_stereotypes(auth.stereotypes, merge_stereotypes(AuthService, AllServices)))
-            tagged_values.update(auth.tagged_values)
+            merge_tagged_values(tagged_values, auth.tagged_values)
             edges_from_authorization_servers.update(find_all_edges_with_sender(auth, edges))
             edges_to_authorization_servers.update(find_all_edges_with_receiver(auth, edges))
             nodes.remove(auth)
@@ -108,7 +108,7 @@ def r05_single_authentication(model: CModel, output_path: str) -> str:
     if authentication_servers:
         for auth in authentication_servers:
             distinct_stereotypes.update(collect_distinct_stereotypes(auth.stereotypes, merge_stereotypes(AuthService, AllServices)))
-            tagged_values.update(auth.tagged_values)
+            merge_tagged_values(tagged_values, auth.tagged_values)
             edges_from_authentication_servers.update(find_all_edges_with_sender(auth, edges))
             edges_to_authentication_servers.update(find_all_edges_with_receiver(auth, edges))
             nodes.remove(auth)
@@ -138,7 +138,7 @@ def r06_single_log_subsystem(model: CModel, output_path: str) -> str:
     if logging_servers:
         for logging_server in logging_servers:
             distinct_stereotypes.update(collect_distinct_stereotypes(logging_server.stereotypes, merge_stereotypes(LoggingServer, AllServices)))
-            tagged_values.update(logging_server.tagged_values)
+            merge_tagged_values(tagged_values, logging_server.tagged_values)
             edges_from_logging_servers.update(find_all_edges_with_sender(logging_server, edges))
             edges_to_logging_servers.update(find_all_edges_with_receiver(logging_server, edges))
             nodes.remove(logging_server)
@@ -169,7 +169,7 @@ def r07_single_registry(model: CModel, output_path: str) -> str:
     if registries:
         for registry in registries:
             distinct_stereotypes.update(collect_distinct_stereotypes(registry.stereotypes, merge_stereotypes(AllServiceRegistries, AllServices)))
-            tagged_values.update(registry.tagged_values)
+            merge_tagged_values(tagged_values, registry.tagged_values)
             edges_from_registries.update(find_all_edges_with_sender(registry, edges))
             edges_to_registries.update(find_all_edges_with_receiver(registry, edges))
             nodes.remove(registry)

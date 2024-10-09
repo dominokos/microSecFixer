@@ -1,3 +1,5 @@
+from collections.abc import Iterable
+
 # Node-specific stereotypes
 class AllServices:
     nodes_stereotypes = ["service",
@@ -164,3 +166,16 @@ def remove_forbidden_stereotypes(stereotypes: set, node_class):
 def collect_distinct_stereotypes(actual_stereotypes: list[str], node_typical_stereotypes: list[str]) -> set:
     distinct_stereotypes = set(actual_stereotypes) - set(with_traceability(node_typical_stereotypes))
     return distinct_stereotypes
+
+def merge_tagged_values(tagged_values: dict, to_merge: dict):
+    for key, value in to_merge.items():
+        if key in tagged_values:
+            if not isinstance(tagged_values[key], list):
+                tagged_values[key] = [tagged_values[key]]
+            
+            if isinstance(value, Iterable) and not isinstance(value, str):
+                tagged_values[key].extend(value)
+            else:
+                tagged_values[key].append(value)
+        else:
+            tagged_values[key] = value
