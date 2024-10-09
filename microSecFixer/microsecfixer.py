@@ -59,6 +59,10 @@ def fix_one(dfd_path: str, rule_to_check: int,  output_path: str):
     visualize_dfd(dfd_path, "ideal", output_path)
     rule, verdict = find_violation(dfd_path, rule_to_check, output_path)
     if not verdict:
+        now = datetime.now()
+        end_time = now.strftime("%H:%M:%S")
+        print("Finished", end_time)
+
         raise Exception("Something went wrong. We couldn't fix your model.")
 
 def fix_all(dfd_path: str, output_path: str):
@@ -75,6 +79,10 @@ def fix_all(dfd_path: str, output_path: str):
     visualize_dfd(dfd_path, "ideal", output_path) 
     final_check = find_next_violation(dfd_path, output_path)
     if final_check != None:
+        now = datetime.now()
+        end_time = now.strftime("%H:%M:%S")
+        print("Finished", end_time)
+        
         raise Exception("Something went wrong. We couldn't fix your model.")
 
 def main(args):
