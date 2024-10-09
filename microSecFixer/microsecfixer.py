@@ -38,7 +38,7 @@ def visualize_dfd(dfd_path: str, out_type: str, out_path: str):
 def insertConfigIntoTemp(config: ConfigParser):
     logger.write_log_message("Copying config file to tmp file", "debug")
     #copying what is needed from config to temp
-    for section in ["Repository", "Technology Profiles", "Analysis Settings", "DFD"]:
+    for section in ["Repository"]:
         if not temp.tmp_config.has_section(section):
             temp.tmp_config.add_section(section)
         for entry in config[section]:
@@ -68,7 +68,7 @@ def fix_all(dfd_path: str, output_path: str):
     rule_to_fix = find_next_violation(dfd_path, output_path)
     fixing_map = RuleMap.get_fixes()
     while(rule_to_fix != None):
-        fixed_until = int(rule_to_fix[1:])
+        fixed_until = int(rule_to_fix[1:]) + 1
         dfd_path = fixing_map[rule_to_fix](get_model(dfd_path), output_path)
         rule_to_fix = find_next_violation(dfd_path, output_path, fixed_until)
 
